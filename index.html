@@ -161,32 +161,30 @@ class ActorPath {
 
 let journey =
 [
-    "naomi" : [
-        {
-            name: "Issue Project Room",
-            coordinates: [-73.98952481348374, 40.690692717192576],
-            time: 0,
-        },
-        {
-            name: "Sephora",
-            coordinates: [-73.99042372887936, 40.692302258434665],
-            time: 6,
-            stayDuration: 1,
-        },
-        {
-            name: "Top Beauty",
-            coordinates: [-73.98713054232593, 40.69189139301244],
-            time: 16,
-            stayDuration: 15,
-        },
-        {
-            name: "Beauty 35",
-            coordinates: [-73.98399300000335,40.690241797368174],
-            time: 37,
-            stayDuration: 10,
-        }
-    ]
-];
+      {
+        name: "Issue Project Room",
+        coordinates: [-73.98952481348374, 40.690692717192576],
+        time: 0,
+      },
+      {
+        name: "Sephora",
+        coordinates: [-73.99042372887936, 40.692302258434665],
+        time: 6,
+        stayDuration: 1,
+      },
+      {
+        name: "Top Beauty",
+        coordinates: [-73.98713054232593, 40.69189139301244],
+        time: 16,
+        stayDuration: 15,
+      },
+      {
+        name: "Beauty 35",
+        coordinates: [-73.98399300000335,40.690241797368174],
+        time: 37,
+        stayDuration: 10,
+      }
+    ];
 
 for (let leg of journey) {
     if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
