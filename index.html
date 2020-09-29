@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Animate a point along a route</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<script src="https://unpkg.com/papaparse@5.3.0/papaparse.min.js"></script>
+<script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.js"></script>
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+<style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<style>
+    .overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .overlay button {
+        font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        background-color: #3386c0;
+        color: #fff;
+        display: inline-block;
+        margin: 0;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    .overlay button:hover {
+        background-color: #4ea0da;
+    }
+</style>
+<script
+    src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"
+    charset="utf-8"
+></script>
+
+<div id="map"></div>
+<div class="overlay">
+    <button id="replay">Replay</button>
+</div>
+
+<script>
+// top of script
+mapboxgl.accessToken = 'pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA';
+var mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
+
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-73.99042372887936, 40.692302258434665],
+    zoom: 14
+});
+
+let pointCounter = 0;
+class ActorPath {
+  constructor() {
+    this.routes = [];
+    this.id = pointCounter++;
+    this.point = {
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': origin
+                }
+            }
+        ]
+    };
+    this.loaded = false;
+    map.on('load', () => {
+
+        map.addSource('point' + this.id, {
+            'type': 'geojson',
+            'data': this.point
+        });
+
+        map.addLayer({
+            'id': 'point' + this.id,
+            'source': 'point' + this.id,
+            'type': 'symbol',
+            'layout': {
+                'icon-image': 'airport-15',
+                'icon-rotate': ['get', 'bearing'],
+                'icon-rotation-alignment': 'map',
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true
+            }
+        });
+        this.loaded = true;
+    });
+  }
+
+  addGeometry(routeGeometry) {
+    let route = {
+        'time': routeGeometry.time,
+        'duration': routeGeometry.duration,
+        'stayDuration': routeGeometry.stayDuration,
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                "geometry": routeGeometry,
+            }
+        ]
+    };
+    this.routes.push(route)
+
+    // Calculate the distance in kilometers between route start/end point.
+    route.lineDistance = turf.lineDistance(route.features[0], 'kilometers');
+
+  }
+
+  finalize() {
+    for (let i = 0; i < this.routes.length - 1; i ++) {
+        this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
+    }
+  }
+
+  render(currentTime) {
+    if (!this.loaded) return;
+    let route = this.routes[0];
+    let routeDuration = 0;
+    for (let i = 0; i < this.routes.length; i++) {
+        let nextRoute = this.routes[i];
+        if (nextRoute.time < currentTime) {
+            route = nextRoute;
+        }
+        else {
+            break;
+        }
+    }
+    let progress = Math.max(0, Math.min((currentTime - route.time - route.stayDuration)/route.duration, 1));
+    this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
+    this.point.features[0].properties.bearing = turf.bearing(
+        turf.point(
+            turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates
+        ),
+        turf.point(
+            turf.along(route.features[0], route.lineDistance * progress + .01, 'kilometers').geometry.coordinates
+        )
+    );
+
+    // Update the source with this new data.
+    map.getSource('point' + this.id).setData(this.point);
+
+  }
+}
+
+let journey =
+[
+    "naomi" : [
+        {
+            name: "Issue Project Room",
+            coordinates: [-73.98952481348374, 40.690692717192576],
+            time: 0,
+        },
+        {
+            name: "Sephora",
+            coordinates: [-73.99042372887936, 40.692302258434665],
+            time: 6,
+            stayDuration: 1,
+        },
+        {
+            name: "Top Beauty",
+            coordinates: [-73.98713054232593, 40.69189139301244],
+            time: 16,
+            stayDuration: 15,
+        },
+        {
+            name: "Beauty 35",
+            coordinates: [-73.98399300000335,40.690241797368174],
+            time: 37,
+            stayDuration: 10,
+        }
+    ]
+];
+
+for (let leg of journey) {
+    if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
+}
+let routes = [];
+let numRoutesFilled = 0;
+for (let i = 1; i < journey.length; i++) {
+    routes.push[{}];
+    mapboxClient.directions.getDirections({
+        profile: 'walking',
+        geometries: 'geojson',
+        waypoints: [
+            journey[i - 1],
+            journey[i],
+        ]
+      })
+      .send()
+      .then(response => {
+        const directions = response.body;
+        console.log("mapping request");
+        console.log(directions);
+        let routeGeometry = directions.routes[0].geometry;
+        routeGeometry.time = journey[i - 1].time;
+        routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
+        routeGeometry.stayDuration = journey[i - 1].stayDuration;
+        routes[i - 1] = routeGeometry;
+        numRoutesFilled += 1;
+        if (numRoutesFilled >= journey.length - 1) {
+            let actor = new ActorPath();
+            for (let route of routes) {
+                actor.addGeometry(route);
+            }
+            actor.finalize();
+            function animate() {
+                actor.render(Date.now() / 1000 % 47);
+                requestAnimationFrame(animate);
+            }
+            requestAnimationFrame(animate);
+        }
+        // init(routeGeometry);
+      });
+  }
+
+// let reparsed = [];
+// Papa.parse("locations.csv", {
+//   download: true,
+//   complete: function(results) {
+//       for (let row of results.data) {
+//         if (row.length < 2) continue;
+//         let label = row[0];
+//         let reparsedRow = [label];
+//         console.log(row[1]);
+//         let json = JSON.parse(row[1]);
+//         console.log(json);
+//         for (let feature of json.features) {
+//           reparsedRow.push(feature.place_name);
+//         }
+//         reparsed.push(reparsedRow);
+//       }
+//       console.log(Papa.unparse(reparsed));
+//     }
+//   });
+
+// let places = new Set();
+// Papa.parse("min-by-min.tsv", {
+//   download: true,
+//   complete: function(results) {
+//     console.log(results);
+//     for (let i = 1; i < results.data.length; i ++) {
+//       let row = results.data[i];
+//       for (let j = 2; j < row.length && j < 3; j++) {
+//         places.add(row[j]);
+//         //console.log(row[j]);
+//       }
+//     }
+//   console.log("places");
+//   console.log(places);
+
+// let responsesFound = 0;
+// let responses = [];
+//console.log("geocoding");
+//for (let item of places) {
+//  console.log(item);
+//  mapboxClient.geocoding.forwardGeocode({
+//    query: item,
+//    limit: 2
+//  })
+//    .send()
+//    .then(response => {
+//      responsesFound += 1;
+//         responses.push([item, response.rawBody]);
+//      console.log(Papa.unparse(responses));
+//    });
+//}
+//   }
+// });
+
+  
+
+
+    // // San Francisco
+    // var origin = [
+    //     -73.974663,
+    //     40.685474];
+
+    // // Washington DC
+    // var destination = [
+    //     -73.972694,
+    //     40.685921];
+  //   [
+  //   {
+  //     "distance": 27.549,
+  //     "name": "Hanson Place",
+  //     "location": [
+  //     ]
+  //   },
+  //   {
+  //     "distance": 3.875,
+  //     "name": "Greene Avenue",
+  //     "location": [
+  //     ]
+  //   }
+  // ],
+
+
+
+// let totalPoints = 0;
+// function init(routeGeometry) {
+//     let pointCounter = totalPoints;
+//     // A simple line from origin to destination.
+//     var route = {
+//         'type': 'FeatureCollection',
+//         'features': [
+//             {
+//                 'type': 'Feature',
+//                 "geometry": routeGeometry,
+//             }
+//         ]
+//     };
+
+//     // A single point that animates along the route.
+//     // Coordinates are initially set to origin.
+//     var point = {
+//         'type': 'FeatureCollection',
+//         'features': [
+//             {
+//                 'type': 'Feature',
+//                 'properties': {},
+//                 'geometry': {
+//                     'type': 'Point',
+//                     'coordinates': origin
+//                 }
+//             }
+//         ]
+//     };
+
+//     // Calculate the distance in kilometers between route start/end point.
+//     var lineDistance = turf.lineDistance(route.features[0], 'kilometers');
+
+//     var arc = [];
+
+//     // Number of steps to use in the arc and animation, more steps means
+//     // a smoother arc and animation, but too many steps will result in a
+//     // low frame rate
+//     var steps = 500;
+
+//     // Draw an arc between the `origin` & `destination` of the two points
+//     for (var i = 0; i < lineDistance; i += lineDistance / steps) {
+//         var segment = turf.along(route.features[0], i, 'kilometers');
+//         arc.push(segment.geometry.coordinates);
+//     }
+
+//     // Update the route with calculated arc coordinates
+//     route.features[0].geometry.coordinates = arc;
+
+//     // Used to increment the value of the point measurement against the route.
+//     var counter = 0;
+
+//     map.on('load', function () {
+//         // Add a source and layer displaying a point which will be animated in a circle.
+//         map.addSource('route' + pointCounter, {
+//             'type': 'geojson',
+//             'data': route
+//         });
+
+//         map.addSource('point' + pointCounter, {
+//             'type': 'geojson',
+//             'data': point
+//         });
+
+//         map.addLayer({
+//             'id': 'route' + pointCounter,
+//             'source': 'route' + pointCounter,
+//             'type': 'line',
+//             'paint': {
+//                 'line-width': 2,
+//                 'line-color': '#007cbf'
+//             }
+//         });
+
+//         map.addLayer({
+//             'id': 'point' + pointCounter,
+//             'source': 'point' + pointCounter,
+//             'type': 'symbol',
+//             'layout': {
+//                 'icon-image': 'airport-15',
+//                 'icon-rotate': ['get', 'bearing'],
+//                 'icon-rotation-alignment': 'map',
+//                 'icon-allow-overlap': true,
+//                 'icon-ignore-placement': true
+//             }
+//         });
+
+//         function animate() {
+//             // Update point geometry to a new position based on counter denoting
+//             // the index to access the arc.
+//             point.features[0].geometry.coordinates =
+//                 route.features[0].geometry.coordinates[counter];
+
+//             // Calculate the bearing to ensure the icon is rotated to match the route arc
+//             // The bearing is calculate between the current point and the next point, except
+//             // at the end of the arc use the previous point and the current point
+//             point.features[0].properties.bearing = turf.bearing(
+//                 turf.point(
+//                     route.features[0].geometry.coordinates[
+//                         counter >= steps ? counter - 1 : counter
+//                     ]
+//                 ),
+//                 turf.point(
+//                     route.features[0].geometry.coordinates[
+//                         counter >= steps ? counter : counter + 1
+//                     ]
+//                 )
+//             );
+
+//             // Update the source with this new data.
+//             map.getSource('point' + pointCounter).setData(point);
+
+//             // Request the next frame of animation so long the end has not been reached.
+//             if (counter < steps) {
+//                 requestAnimationFrame(animate);
+//             }
+
+//             counter = counter + 1;
+//         }
+
+//         document
+//             .getElementById('replay')
+//             .addEventListener('click', function () {
+//                 // Set the coordinates of the original point back to origin
+//                 point.features[0].geometry.coordinates = origin;
+
+//                 // Update the source layer
+//                 map.getSource('point' + pointCounter).setData(point);
+
+//                 // Reset the counter
+//                 counter = 0;
+
+//                 // Restart the animation.
+//                 animate(counter);
+//             });
+
+//         // Start the animation.
+//         animate(counter);
+//     });
+//     totalPoints = totalPoints + 1;
+// }
+
+// pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA
+
+// https://api.mapbox.com/matching/v5/mapbox/walking/-73.93132,40.682431;-73.972688,40.685886.json?access_token=pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA
+
+// https://api.mapbox.com/directions/v5/mapbox/walking/-73.974609,40.68523;-73.972688,40.685886.json?access_token=pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA&overview=full&geometries=geojson
+
+
+</script>
+
+</body>
+</html>
