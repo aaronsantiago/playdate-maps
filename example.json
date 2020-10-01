@@ -12,11 +12,17 @@
             "stayDuration" : 1,
         },
         {
-            "name" : "Top Beauty",
-            "coordinates" : [-73.98713054232593, 40.69189139301244],
+            "name" : "Top Beauty Exterior",
+            "coordinates" : [-73.98724293447953,40.691923693517424],
             "time" : 16,
+        },
+        {
+            "name" : "Top Beauty Interior",
+            "coordinates" : [-73.98713054232593, 40.69189139301244],
+            "time" : 17,
             "stayDuration" : 15,
         },
+        -73.98707459200904,40.69192389185861
         {
             "name" : "Beauty 35",
             "coordinates" : [-73.98399300000335,40.690241797368174],

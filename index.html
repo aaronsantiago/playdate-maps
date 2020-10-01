@@ -8,6 +8,13 @@
 <script src="https://unpkg.com/papaparse@5.3.0/papaparse.min.js"></script>
 <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+<script
+    src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"
+    charset="utf-8"
+></script>
+<script src="actorpath.js"></script>
+
 <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
 <style>
     body { margin: 0; padding: 0; }
@@ -37,18 +44,78 @@
     .overlay button:hover {
         background-color: #4ea0da;
     }
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.slideout-menu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 256px;
+  min-height: 100vh;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  z-index: 0;
+  display: none;
+}
+
+.slideout-menu-left {
+  left: 0;
+}
+
+.slideout-menu-right {
+  right: 0;
+}
+
+.slideout-panel {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+  background-color: #FFF; /* A background-color is required */
+  min-height: 100vh;
+}
+
+.slideout-open,
+.slideout-open body,
+.slideout-open .slideout-panel {
+  overflow: hidden;
+}
+
+.slideout-open .slideout-menu {
+  display: block;
+}
 </style>
-<script
-    src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"
-    charset="utf-8"
-></script>
+
+<nav id="menu">
+  <header>
+    <h2>Menu</h2>
+  </header>
+</nav>
+
+<main id="panel">
 
 <div id="map"></div>
 <div class="overlay">
-    <button id="replay">Replay</button>
+    <button class="toggle-button">options</button>
 </div>
+</main>
 
 <script>
+
+var slideout = new Slideout({
+'panel': document.getElementById('panel'),
+'menu': document.getElementById('menu'),
+'padding': 256,
+'tolerance': 70
+});
+
+// Toggle button
+document.querySelector('.toggle-button').addEventListener('click', function() {
+slideout.toggle();
+});
+
 // top of script
 mapboxgl.accessToken = 'pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA';
 var mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
@@ -61,172 +128,143 @@ var map = new mapboxgl.Map({
     zoom: 14
 });
 
-let pointCounter = 0;
-class ActorPath {
-  constructor() {
-    this.routes = [];
-    this.id = pointCounter++;
-    this.point = {
-        'type': 'FeatureCollection',
-        'features': [
-            {
-                'type': 'Feature',
-                'properties': {},
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': origin
+let journeys =
+{
+    "naomi" : [
+        {
+            name: "Issue Project Room",
+            coordinates: [-73.98975327110401,40.690731932529246],
+            time: 0,
+        },
+        {
+            name: "Issue Project Room",
+            coordinates: [-73.9919102,40.6908507],
+            time: 3,
+        },
+        {
+            name: "Sephora",
+            coordinates: [-73.99042372887936, 40.692302258434665],
+            time: 6,
+            stayDuration: 1,
+        },
+        {
+            name: "Top Beauty",
+            coordinates: [-73.98713054232593, 40.69189139301244],
+            time: 16,
+            stayDuration: 15,
+        },
+        {
+            name: "Beauty 35",
+            coordinates: [-73.98399300000335,40.690241797368174],
+            time: 37,
+            stayDuration: 10,
+        }
+    ],
+    "naomi2" : [
+        {
+            name: "Beauty 35",
+            coordinates: [-73.98399300000335,40.690241797368174],
+            time: 0,
+        },
+        {
+            name: "Sephora",
+            coordinates: [-73.99042372887936, 40.692302258434665],
+            time: 6,
+            stayDuration: 1,
+        },
+        {
+            name: "Top Beauty",
+            coordinates: [-73.98713054232593, 40.69189139301244],
+            time: 16,
+            stayDuration: 15,
+        },
+        {
+            name: "Issue Project Room",
+            coordinates: [-73.9919102,40.6908507],
+            time: 37,
+            stayDuration: 10,
+        }
+    ]
+};
+
+for (let name in journeys) {
+    let journey = journeys[name];
+    for (let leg of journey) {
+        if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
+        let id = 'point' + Math.random();
+
+        let point = {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': leg.coordinates
+                    }
                 }
-            }
-        ]
-    };
-    this.loaded = false;
-    map.on('load', () => {
+            ]
+        };
 
-        map.addSource('point' + this.id, {
-            'type': 'geojson',
-            'data': this.point
+        map.on('load', () => {
+            map.addSource(id, {
+                'type': 'geojson',
+                'data': point
+            });
+            map.addLayer({
+                'id': id,
+                'source': id,
+                'type': 'symbol',
+                'layout': {
+                    'icon-image': 'airport-15',
+                    'icon-rotate': ['get', 'bearing'],
+                    'icon-rotation-alignment': 'map',
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true
+                }
+            });
         });
-
-        map.addLayer({
-            'id': 'point' + this.id,
-            'source': 'point' + this.id,
-            'type': 'symbol',
-            'layout': {
-                'icon-image': 'airport-15',
-                'icon-rotate': ['get', 'bearing'],
-                'icon-rotation-alignment': 'map',
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true
-            }
-        });
-        this.loaded = true;
-    });
-  }
-
-  addGeometry(routeGeometry) {
-    let route = {
-        'time': routeGeometry.time,
-        'duration': routeGeometry.duration,
-        'stayDuration': routeGeometry.stayDuration,
-        'type': 'FeatureCollection',
-        'features': [
-            {
-                'type': 'Feature',
-                "geometry": routeGeometry,
-            }
-        ]
-    };
-    this.routes.push(route)
-
-    // Calculate the distance in kilometers between route start/end point.
-    route.lineDistance = turf.lineDistance(route.features[0], 'kilometers');
-
-  }
-
-  finalize() {
-    for (let i = 0; i < this.routes.length - 1; i ++) {
-        this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
     }
-  }
-
-  render(currentTime) {
-    if (!this.loaded) return;
-    let route = this.routes[0];
-    let routeDuration = 0;
-    for (let i = 0; i < this.routes.length; i++) {
-        let nextRoute = this.routes[i];
-        if (nextRoute.time < currentTime) {
-            route = nextRoute;
-        }
-        else {
-            break;
-        }
-    }
-    let progress = Math.max(0, Math.min((currentTime - route.time - route.stayDuration)/route.duration, 1));
-    this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
-    this.point.features[0].properties.bearing = turf.bearing(
-        turf.point(
-            turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates
-        ),
-        turf.point(
-            turf.along(route.features[0], route.lineDistance * progress + .01, 'kilometers').geometry.coordinates
-        )
-    );
-
-    // Update the source with this new data.
-    map.getSource('point' + this.id).setData(this.point);
-
-  }
-}
-
-let journey =
-[
-      {
-        name: "Issue Project Room",
-        coordinates: [-73.98952481348374, 40.690692717192576],
-        time: 0,
-      },
-      {
-        name: "Sephora",
-        coordinates: [-73.99042372887936, 40.692302258434665],
-        time: 6,
-        stayDuration: 1,
-      },
-      {
-        name: "Top Beauty",
-        coordinates: [-73.98713054232593, 40.69189139301244],
-        time: 16,
-        stayDuration: 15,
-      },
-      {
-        name: "Beauty 35",
-        coordinates: [-73.98399300000335,40.690241797368174],
-        time: 37,
-        stayDuration: 10,
-      }
-    ];
-
-for (let leg of journey) {
-    if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
-}
-let routes = [];
-let numRoutesFilled = 0;
-for (let i = 1; i < journey.length; i++) {
-    routes.push[{}];
-    mapboxClient.directions.getDirections({
-        profile: 'walking',
-        geometries: 'geojson',
-        waypoints: [
-            journey[i - 1],
-            journey[i],
-        ]
-      })
-      .send()
-      .then(response => {
-        const directions = response.body;
-        console.log("mapping request");
-        console.log(directions);
-        let routeGeometry = directions.routes[0].geometry;
-        routeGeometry.time = journey[i - 1].time;
-        routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
-        routeGeometry.stayDuration = journey[i - 1].stayDuration;
-        routes[i - 1] = routeGeometry;
-        numRoutesFilled += 1;
-        if (numRoutesFilled >= journey.length - 1) {
-            let actor = new ActorPath();
-            for (let route of routes) {
-                actor.addGeometry(route);
-            }
-            actor.finalize();
-            function animate() {
-                actor.render(Date.now() / 1000 % 47);
+    let routes = [];
+    let numRoutesFilled = 0;
+    for (let i = 1; i < journey.length; i++) {
+        routes.push[{}];
+        mapboxClient.directions.getDirections({
+            profile: 'walking',
+            geometries: 'geojson',
+            waypoints: [
+                journey[i - 1],
+                journey[i],
+            ]
+        })
+          .send()
+          .then(response => {
+            const directions = response.body;
+            console.log("mapping request");
+            console.log(directions);
+            let routeGeometry = directions.routes[0].geometry;
+            routeGeometry.time = journey[i - 1].time;
+            routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
+            routeGeometry.stayDuration = journey[i - 1].stayDuration;
+            routes[i - 1] = routeGeometry;
+            numRoutesFilled += 1;
+            if (numRoutesFilled >= journey.length - 1) {
+                let actor = new ActorPath(map);
+                for (let route of routes) {
+                    actor.addGeometry(route);
+                }
+                actor.finalize();
+                function animate() {
+                    actor.render(Date.now() / 1000 % 47);
+                    requestAnimationFrame(animate);
+                }
                 requestAnimationFrame(animate);
             }
-            requestAnimationFrame(animate);
-        }
-        // init(routeGeometry);
-      });
-  }
+            // init(routeGeometry);
+        });
+    }
+}
 
 // let reparsed = [];
 // Papa.parse("locations.csv", {
@@ -458,7 +496,6 @@ for (let i = 1; i < journey.length; i++) {
 // https://api.mapbox.com/matching/v5/mapbox/walking/-73.93132,40.682431;-73.972688,40.685886.json?access_token=pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA
 
 // https://api.mapbox.com/directions/v5/mapbox/walking/-73.974609,40.68523;-73.972688,40.685886.json?access_token=pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA&overview=full&geometries=geojson
-
 
 </script>
 
