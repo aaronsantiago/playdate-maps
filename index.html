@@ -59,6 +59,7 @@ body {
   -webkit-overflow-scrolling: touch;
   z-index: 0;
   display: none;
+  margin: 1em;
 }
 
 .slideout-menu-left {
@@ -86,12 +87,61 @@ body {
 .slideout-open .slideout-menu {
   display: block;
 }
+
+nav textarea {
+    width: 80%;
+    height: 50%;
+    margin: auto;
+}
+
 </style>
 
 <nav id="menu">
   <header>
     <h2>Menu</h2>
   </header>
+  <textarea id="json">
+      {
+    "naomi" : [
+        {
+            "name" : "Issue Project Room",
+            "coordinates" : [-73.98952481348374, 40.690692717192576],
+            "time" : 0,
+        },
+        {
+            "name" : "Sephora",
+            "coordinates" : [-73.99042372887936, 40.692302258434665],
+            "time" : 6,
+            "stayDuration" : 1,
+        },
+        {
+            "name" : "Top Beauty Exterior",
+            "coordinates" : [-73.98724293447953,40.691923693517424],
+            "time" : 16,
+        },
+        {
+            "name" : "Top Beauty Interior",
+            "coordinates" : [-73.98713054232593, 40.69189139301244],
+            "time" : 17,
+            "stayDuration" : 15,
+        },
+        -73.98707459200904,40.69192389185861
+        {
+            "name" : "Beauty 35",
+            "coordinates" : [-73.98399300000335,40.690241797368174],
+            "time" : 37,
+            "stayDuration" : 10,
+        }
+    ],
+    "naomi2" : [
+        {
+            "name" : "Issue Project Room",
+            "coordinates" : [-73.98952481348374, 40.690692717192576],
+            "time" : 0,
+        },
+    ],
+}
+  </textarea>
 </nav>
 
 <main id="panel">
@@ -128,6 +178,9 @@ var map = new mapboxgl.Map({
     zoom: 14
 });
 
+let sources = [];
+let layers = [];
+
 let journeys =
 {
     "naomi" : [
@@ -135,11 +188,6 @@ let journeys =
             name: "Issue Project Room",
             coordinates: [-73.98975327110401,40.690731932529246],
             time: 0,
-        },
-        {
-            name: "Issue Project Room",
-            coordinates: [-73.9919102,40.6908507],
-            time: 3,
         },
         {
             name: "Sephora",
@@ -180,91 +228,134 @@ let journeys =
         },
         {
             name: "Issue Project Room",
-            coordinates: [-73.9919102,40.6908507],
+            coordinates: [-73.98975327110401,40.690731932529246],
             time: 37,
-            stayDuration: 10,
         }
     ]
 };
 
-for (let name in journeys) {
-    let journey = journeys[name];
-    for (let leg of journey) {
-        if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
-        let id = 'point' + Math.random();
+let currentIteration = -1;
+let jsonToMap = function() {
+    currentIteration++;
+    // if (layers.length > 0) {
+    //     for (let layer of layers) {
+    //         map.removeLayer(layer);
+    //     }
+    //     layers = [];
+    // }
+    // if (sources.length > 0) {
+    //     for (let source of sources) {
+    //         map.removeSource(source);
+    //     }
+    //     sources = [];
+    // }
+    map.remove();
+    map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-73.99042372887936, 40.692302258434665],
+        zoom: 14
+    });
+    for (let name in journeys) {
+        let journey = journeys[name];
+        for (let leg of journey) {
+            if (isNaN(leg.stayDuration)) leg.stayDuration = 0;
+            let id = 'point' + Math.random();
 
-        let point = {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': {
-                        'type': 'Point',
-                        'coordinates': leg.coordinates
+            let point = {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': leg.coordinates
+                        }
                     }
-                }
-            ]
-        };
+                ]
+            };
 
-        map.on('load', () => {
-            map.addSource(id, {
-                'type': 'geojson',
-                'data': point
-            });
-            map.addLayer({
-                'id': id,
-                'source': id,
-                'type': 'symbol',
-                'layout': {
-                    'icon-image': 'airport-15',
-                    'icon-rotate': ['get', 'bearing'],
-                    'icon-rotation-alignment': 'map',
-                    'icon-allow-overlap': true,
-                    'icon-ignore-placement': true
-                }
-            });
-        });
-    }
-    let routes = [];
-    let numRoutesFilled = 0;
-    for (let i = 1; i < journey.length; i++) {
-        routes.push[{}];
-        mapboxClient.directions.getDirections({
-            profile: 'walking',
-            geometries: 'geojson',
-            waypoints: [
-                journey[i - 1],
-                journey[i],
-            ]
-        })
-          .send()
-          .then(response => {
-            const directions = response.body;
-            console.log("mapping request");
-            console.log(directions);
-            let routeGeometry = directions.routes[0].geometry;
-            routeGeometry.time = journey[i - 1].time;
-            routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
-            routeGeometry.stayDuration = journey[i - 1].stayDuration;
-            routes[i - 1] = routeGeometry;
-            numRoutesFilled += 1;
-            if (numRoutesFilled >= journey.length - 1) {
-                let actor = new ActorPath(map);
-                for (let route of routes) {
-                    actor.addGeometry(route);
-                }
-                actor.finalize();
-                function animate() {
-                    actor.render(Date.now() / 1000 % 47);
+            let onLoad = () => {
+                map.addSource(id, {
+                    'type': 'geojson',
+                    'data': point
+                });
+                sources.push(id);
+                map.addLayer({
+                    'id': id,
+                    'source': id,
+                    'type': 'symbol',
+                    'layout': {
+                        'icon-image': 'airport-15',
+                        'icon-rotate': ['get', 'bearing'],
+                        'icon-rotation-alignment': 'map',
+                        'icon-allow-overlap': true,
+                        'icon-ignore-placement': true
+                    }
+                });
+                layers.push(id);
+            };
+            if (!map.loaded()) {
+                map.on('load', onLoad);
+            }
+            else {
+                onLoad();
+            }
+        }
+        let routes = [];
+        let numRoutesFilled = 0;
+        let myIteration = currentIteration;
+        for (let i = 1; i < journey.length; i++) {
+            routes.push[{}];
+            mapboxClient.directions.getDirections({
+                profile: 'walking',
+                geometries: 'geojson',
+                waypoints: [
+                    journey[i - 1],
+                    journey[i],
+                ]
+            })
+              .send()
+              .then(response => {
+                const directions = response.body;
+                console.log("mapping request");
+                console.log(directions);
+                let routeGeometry = directions.routes[0].geometry;
+                routeGeometry.time = journey[i - 1].time;
+                routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
+                routeGeometry.stayDuration = journey[i - 1].stayDuration;
+                routes[i - 1] = routeGeometry;
+                numRoutesFilled += 1;
+                if (numRoutesFilled >= journey.length - 1) {
+                    let actor = new ActorPath(map);
+                    for (let route of routes) {
+                        actor.addGeometry(route);
+                    }
+                    actor.finalize();
+                    sources.push(actor.id);
+                    layers.push(actor.id);
+                    function animate() {
+                        if (myIteration != currentIteration) return;
+                        actor.render(Date.now() / 1000 % 47);
+                        requestAnimationFrame(animate);
+                    }
                     requestAnimationFrame(animate);
                 }
-                requestAnimationFrame(animate);
-            }
-            // init(routeGeometry);
-        });
+                // init(routeGeometry);
+            });
+        }
     }
 }
+
+
+const selectElement = document.querySelector('.ice-cream');
+
+// selectElement.addEventListener('change', (event) => {
+//   const result = document.querySelector('.result');
+//   result.textContent = `You like ${event.target.value}`;
+// });
+
 
 // let reparsed = [];
 // Papa.parse("locations.csv", {

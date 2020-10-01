@@ -4,7 +4,7 @@ class ActorPath {
   constructor(map) {
     this.map = map;
     this.routes = [];
-    this.id = pointCounter++;
+    this.id = "actorId" + pointCounter++;
     this.point = {
         'type': 'FeatureCollection',
         'features': [
@@ -19,16 +19,16 @@ class ActorPath {
         ]
     };
     this.loaded = false;
-    this.map.on('load', () => {
+    let onLoad = () => {
 
-        this.map.addSource('point' + this.id, {
+        this.map.addSource(this.id, {
             'type': 'geojson',
             'data': this.point
         });
 
         this.map.addLayer({
-            'id': 'point' + this.id,
-            'source': 'point' + this.id,
+            'id': this.id,
+            'source': this.id,
             'type': 'symbol',
             'layout': {
                 'icon-image': 'airport-15',
@@ -39,7 +39,13 @@ class ActorPath {
             }
         });
         this.loaded = true;
-    });
+    };
+    if (!map.loaded()) {
+        this.map.on('load', onLoad);
+    }
+    else {
+        onLoad();
+    }
   }
 
   addGeometry(routeGeometry) {
@@ -93,7 +99,7 @@ class ActorPath {
     );
 
     // Update the source with this new data.
-    this.map.getSource('point' + this.id).setData(this.point);
+    this.map.getSource(this.id).setData(this.point);
 
   }
 }
