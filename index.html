@@ -44,6 +44,13 @@
     .overlay button:hover {
         background-color: #4ea0da;
     }
+    .marker {
+display: block;
+border: none;
+border-radius: 50%;
+cursor: pointer;
+padding: 0;
+}
 body {
   width: 100%;
   height: 100%;
@@ -796,7 +803,7 @@ nav textarea {
             -73.99092207937201,
             40.69204633227292
          ],
-         "time":0,
+         "time":3,
          "stayDuration":0,
          "interior":1
       },
@@ -817,7 +824,7 @@ nav textarea {
             40.692481809057
          ],
          "time":48,
-         "stayDuration":43,
+         "stayDuration":26,
          "interior":25
       },
       {
@@ -936,7 +943,7 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
     center: [-73.99042372887936, 40.692302258434665],
-    zoom: 14
+    zoom: 18
 });
 
 let sources = [];
@@ -995,6 +1002,8 @@ let journeys =
     ]
 };
 
+let animations = [];
+
 let currentIteration = -1;
 let jsonToMap = function() {
     currentIteration++;
@@ -1015,7 +1024,7 @@ let jsonToMap = function() {
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [-73.99042372887936, 40.692302258434665],
-        zoom: 14
+        zoom: 26
     });
     for (let name in journeys) {
         let journey = journeys[name];
@@ -1060,12 +1069,12 @@ let jsonToMap = function() {
                 // });
                 // layers.push(id);
             };
-            if (!map.loaded()) {
-                map.on('load', onLoad);
-            }
-            else {
-                onLoad();
-            }
+            // if (!map.loaded()) {
+            //     map.on('load', onLoad);
+            // }
+            // else {
+            //     onLoad();
+            // }
         }
         let routes = [];
         let numRoutesFilled = 0;
@@ -1083,12 +1092,18 @@ let jsonToMap = function() {
               .send()
               .then(response => {
                 const directions = response.body;
-                console.log("mapping request");
-                console.log(directions);
+                // console.log("mapping request");
+                // console.log(directions);
                 let routeGeometry = directions.routes[0].geometry;
                 routeGeometry.time = journey[i - 1].time;
                 routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
                 routeGeometry.stayDuration = journey[i - 1].stayDuration;
+                if (routeGeometry.duration < 0) {
+                  console.log("wtf?" + name);
+                }
+                if (routeGeometry.duration < routeGeometry.stayDuration) {
+                  console.log("????" + name)
+                }
                 routes[i - 1] = routeGeometry;
                 numRoutesFilled += 1;
                 if (numRoutesFilled >= journey.length - 1) {
@@ -1102,16 +1117,63 @@ let jsonToMap = function() {
                     function animate() {
                         if (myIteration != currentIteration) return;
                         actor.render(Date.now() / 1000 % 47);
-                        requestAnimationFrame(animate);
+                        if (name == "Naomi") {
+                           map.flyTo({
+                           center: actor.point.features[0].geometry.coordinates
+                           });
+                        }
                     }
-                    requestAnimationFrame(animate);
+                    animations.push(animate);
                 }
+                let pointCounter = Math.random();
+                let onLoad = function() {
+                   if (name == "Naomi") {
+                       var route = {
+                           'type': 'FeatureCollection',
+                           'features': [
+                               {
+                                   'type': 'Feature',
+                                   "geometry": routeGeometry,
+                               }
+                           ]
+                       };
+                       // Add a source and layer displaying a point which will be animated in a circle.
+                       map.addSource('route' + pointCounter, {
+                           'type': 'geojson',
+                           'data': route
+                       });
+
+
+                       map.addLayer({
+                           'id': 'route' + pointCounter,
+                           'source': 'route' + pointCounter,
+                           'type': 'line',
+                           'paint': {
+                               'line-width': 2,
+                               'line-color': '#007cbf'
+                           }
+                       });
+                    }
+                 }
+                  if (!map.loaded()) {
+                      map.on('load', onLoad);
+                  }
+                  else {
+                      onLoad();
+                  }
                 // init(routeGeometry);
             });
         }
     }
 }
 
+function animateAll() {
+    for (let anim of animations) {
+        anim();
+    }
+    requestAnimationFrame(animateAll);
+}
+requestAnimationFrame(animateAll);
 
 const selectElement = document.querySelector('#json');
 
@@ -1121,9 +1183,9 @@ selectElement.addEventListener('change', (event) => {
     localStorage.setItem('actorsJson', event.target.value);
 });
 
-if (localStorage.getItem('actorsJson') != null) {
-    selectElement.value = localStorage.getItem('actorsJson');
-}
+// if (localStorage.getItem('actorsJson') != null) {
+//     selectElement.value = localStorage.getItem('actorsJson');
+// }
 journeys = JSON.parse(selectElement.value);
 jsonToMap();
 

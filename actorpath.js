@@ -1,4 +1,7 @@
 
+var origin = [
+    -73.974663,
+    40.685474];
 let pointCounter = 0;
 class ActorPath {
   constructor(map) {
@@ -18,26 +21,41 @@ class ActorPath {
             }
         ]
     };
+    this.marker = null;
     this.loaded = false;
     let onLoad = () => {
 
-        this.map.addSource(this.id, {
-            'type': 'geojson',
-            'data': this.point
-        });
+        // create a DOM element for the marker
+        var el = document.createElement('div');
+        el.className = 'marker';
+        el.style.backgroundImage =
+        'url(https://placekitten.com/g/50/50/)';
+        el.style.width = '50px';
+        el.style.height = '50px';
+         
+        // add marker to map
+        this.marker = new mapboxgl.Marker(el)
+            .setLngLat(this.point.features[0].geometry.coordinates)
+            .addTo(map);
 
-        this.map.addLayer({
-            'id': this.id,
-            'source': this.id,
-            'type': 'symbol',
-            'layout': {
-                'icon-image': 'airport-15',
-                'icon-rotate': ['get', 'bearing'],
-                'icon-rotation-alignment': 'map',
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true
-            }
-        });
+
+        // this.map.addSource(this.id, {
+        //     'type': 'geojson',
+        //     'data': this.point
+        // });
+
+        // this.map.addLayer({
+        //     'id': this.id,
+        //     'source': this.id,
+        //     'type': 'symbol',
+        //     'layout': {
+        //         'icon-image': 'airport-15',
+        //         'icon-rotate': ['get', 'bearing'],
+        //         'icon-rotation-alignment': 'map',
+        //         'icon-allow-overlap': true,
+        //         'icon-ignore-placement': true
+        //     }
+        // });
         this.loaded = true;
     };
     if (!map.loaded()) {
@@ -70,14 +88,13 @@ class ActorPath {
 
   finalize() {
     for (let i = 0; i < this.routes.length - 1; i ++) {
-        this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
+        // this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
     }
   }
 
   render(currentTime) {
     if (!this.loaded) return;
     let route = this.routes[0];
-    let routeDuration = 0;
     for (let i = 0; i < this.routes.length; i++) {
         let nextRoute = this.routes[i];
         if (nextRoute.time < currentTime) {
@@ -99,7 +116,10 @@ class ActorPath {
     );
 
     // Update the source with this new data.
-    this.map.getSource(this.id).setData(this.point);
+    // this.map.getSource(this.id).setData(this.point);
+
+    // add marker to map
+    this.marker.setLngLat(this.point.features[0].geometry.coordinates);
 
   }
 }
