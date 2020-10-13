@@ -20,7 +20,7 @@ let mapOptions = {
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v11',
   center: [-73.99042372887936, 40.692302258434665],
-  zoom: 26
+  zoom: 16
 };
 
 var map = new mapboxgl.Map(mapOptions);
