@@ -132,16 +132,16 @@ class ActorPath {
         break;
       }
     }
-    let progress = Math.max(0, Math.min((currentTime - route.time - route.stayDuration) / route.duration, 1));
+    let progress = Math.max(0, Math.min((currentTime - route.time - route.stayDuration) / route.duration, .999));
     this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
-    this.point.features[0].properties.bearing = turf.bearing(
-      turf.point(
-        turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates
-      ),
-      turf.point(
-        turf.along(route.features[0], route.lineDistance * progress + .01, 'kilometers').geometry.coordinates
-      )
-    );
+    // this.point.features[0].properties.bearing = turf.bearing(
+    //   turf.point(
+    //     turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates
+    //   ),
+    //   turf.point(
+    //     turf.along(route.features[0], route.lineDistance * progress + .01, 'kilometers').geometry.coordinates
+    //   )
+    // );
 
     // Update the source with this new data.
     // this.map.getSource(this.id).setData(this.point);

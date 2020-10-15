@@ -141,10 +141,20 @@ jsonSourceElement.addEventListener('change', (event) => {
   // localStorage.setItem('actorsJson', event.target.value);
 });
 
+var rawFile = new XMLHttpRequest();
+rawFile.overrideMimeType("application/json");
+rawFile.open("GET", "playdate_101220.json", true);
+rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4 && rawFile.status == "200") {
+      jsonSourceElement.value = rawFile.responseText;
+
+      // initialize
+      journeys = JSON.parse(jsonSourceElement.value);
+      jsonToMap();
+    }
+}
+rawFile.send(null);
+
 // if (localStorage.getItem('actorsJson') != null) {
 //     jsonSourceElement.value = localStorage.getItem('actorsJson');
 // }
-
-// initialize
-journeys = JSON.parse(jsonSourceElement.value);
-jsonToMap();
