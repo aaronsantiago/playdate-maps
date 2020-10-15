@@ -20,6 +20,10 @@ body { margin: 0; padding: 0; }
   border-radius: 3px;
 }
 
+.overlay #slider {
+  width: 100%;
+}
+
 .overlay button:hover {
   background-color: #4ea0da;
 }
@@ -78,4 +82,8 @@ nav textarea {
     width: 80%;
     height: 50%;
     margin: auto;
+}
+
+#actorFocus button {
+  display: block;
 }

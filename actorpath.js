@@ -19,6 +19,7 @@ class ActorPath {
         }
       }]
     };
+    this.totalDuration = 0;
     this.marker = null;
     this.loaded = false;
     let onLoad = () => {
@@ -85,6 +86,8 @@ class ActorPath {
     for (let i = 0; i < this.routes.length - 1; i++) {
       // this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
     }
+    this.totalDuration = this.routes[this.routes.length - 1].time
+        + this.routes[this.routes.length - 1].stayDuration + 1;
 
     let pointCounter = Math.random();
     let onLoad = function() {

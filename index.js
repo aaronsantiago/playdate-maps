@@ -1,6 +1,5 @@
-
 // menu toggle button
-var slideout = new Slideout({
+let slideout = new Slideout({
   'panel': document.getElementById('panel'),
   'menu': document.getElementById('menu'),
   'padding': 256,
@@ -10,31 +9,69 @@ document.querySelector('.toggle-button').addEventListener('click', function() {
   slideout.toggle();
 });
 
+// JSON toggle button
+function toggleJson() {
+  let x = document.getElementById("json");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+// playback toggle button
+function togglePlayback() {
+  playing = !playing;
+}
+
+// actor focus clear 
+function clearFocus() {
+  actorFocus = "";
+}
+
+// playback range slider
+let slider = document.getElementById("slider");
+slider.oninput = function() {
+  currentPlayPosition = playbackLength * slider.value;
+}
+
+// playback variables
+let playing = true;
+let actorFocus = "";
+let playbackLength = 1; // use placeholder length until we calculate the true length
+let currentPlayPosition = 0;
+
+
 
 // mapbox setup
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEycmxjZ3B3Zzh1MmYifQ.nO9RZS54KUxX_Xm-0Yr9iA';
-var mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
-
+let mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
 let mapOptions = {
   container: 'map',
-  style: 'mapbox://styles/mapbox/streets-v11',
+  style: 'mapbox://styles/aarondotwork/ckgb2iai52cig19mifgvweadl',
   center: [-73.99042372887936, 40.692302258434665],
   zoom: 16
 };
+let map = new mapboxgl.Map(mapOptions);
 
-var map = new mapboxgl.Map(mapOptions);
 
-let journeys = {};
-let animations = [];
+let journeys = {}; // stores parsed actor path journeys
+let animations = []; // used to hold actor render functions
 
-let currentIteration = -1;
+let currentIteration = -1; // used to reset state when JSON is refreshed
 let jsonToMap = function() {
   currentIteration++;
   map.remove();
   map = new mapboxgl.Map(mapOptions);
   for (let name in journeys) {
     let journey = journeys[name];
+
+    // setup button to focus this actor
+    let btn = document.createElement("BUTTON");
+    btn.innerHTML = "focus " + name;
+    btn.onclick = () => { actorFocus = name };
+    document.getElementById("actorFocus").appendChild(btn);
 
     // process individual locations per journey
     for (let leg of journey) {
@@ -92,7 +129,7 @@ let jsonToMap = function() {
           routeGeometry.time = journey[i - 1].time;
           routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
           routeGeometry.stayDuration = journey[i - 1].stayDuration;
-          
+
 
           if (routeGeometry.duration < 0) {
             console.log("incorrect formatting for time: " + name);
@@ -111,11 +148,22 @@ let jsonToMap = function() {
               actor.addGeometry(route);
             }
             actor.finalize();
+            // update playback duration to longest actor duration
+            if (actor.totalDuration > playbackLength) {
+              playbackLength = actor.totalDuration;
+            }
 
             function animate() {
               // make sure to bail if app has been reloaded
               if (myIteration != currentIteration) return;
-              actor.render(Date.now() / 1000 % 47);
+              actor.render(currentPlayPosition);
+
+              if (actorFocus == name) {
+                map.flyTo({
+                  center: actor.point.features[0].geometry.coordinates,
+                  essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                });
+              }
             }
             animations.push(animate);
           }
@@ -124,8 +172,15 @@ let jsonToMap = function() {
   }
 }
 
+let previousTime = Date.now();
 // update all actor animation functions
 function animateAll() {
+  if (playing) {
+    let currentTime = Date.now();
+    currentPlayPosition += (currentTime - previousTime) / 1000;
+    previousTime = currentTime;
+    slider.value = Math.min(1, Math.max(0, currentPlayPosition / playbackLength));
+  }
   for (let anim of animations) {
     anim();
   }
@@ -141,17 +196,17 @@ jsonSourceElement.addEventListener('change', (event) => {
   // localStorage.setItem('actorsJson', event.target.value);
 });
 
-var rawFile = new XMLHttpRequest();
+let rawFile = new XMLHttpRequest();
 rawFile.overrideMimeType("application/json");
 rawFile.open("GET", "playdate_101220.json", true);
 rawFile.onreadystatechange = function() {
-    if (rawFile.readyState === 4 && rawFile.status == "200") {
-      jsonSourceElement.value = rawFile.responseText;
+  if (rawFile.readyState === 4 && rawFile.status == "200") {
+    jsonSourceElement.value = rawFile.responseText;
 
-      // initialize
-      journeys = JSON.parse(jsonSourceElement.value);
-      jsonToMap();
-    }
+    // initialize
+    journeys = JSON.parse(jsonSourceElement.value);
+    jsonToMap();
+  }
 }
 rawFile.send(null);
 

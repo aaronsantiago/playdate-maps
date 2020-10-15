@@ -20,7 +20,17 @@
     <header>
       <h2>Menu</h2>
     </header>
-    <textarea id="json"></textarea>
+    <textarea id="json" style="display:none;"></textarea>
+    <button class="toggle-json" onclick="toggleJson();">edit JSON</button>
+    <div id="timeline">
+      <div>
+        <button class="toggle-playback" onclick="togglePlayback();">play/pause</button>
+      </div>
+      <input id="slider" type="range" min="0" max="1.1" step=".0001" value="0" />
+      <div id="actorFocus">
+        <button onclick="clearFocus();">clear actor focus</button>
+      </div>
+    </div>
   </nav>
   <main id="panel">
     <div id="map"></div>
