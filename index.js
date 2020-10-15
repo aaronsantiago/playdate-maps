@@ -175,12 +175,16 @@ let jsonToMap = function() {
 let previousTime = Date.now();
 // update all actor animation functions
 function animateAll() {
+
+  // ensure deltaTime calculations still happen when playback
+  // is not running
+  let currentTime = Date.now();
   if (playing) {
-    let currentTime = Date.now();
     currentPlayPosition += (currentTime - previousTime) / 1000;
-    previousTime = currentTime;
     slider.value = Math.min(1, Math.max(0, currentPlayPosition / playbackLength));
   }
+  previousTime = currentTime;
+
   for (let anim of animations) {
     anim();
   }
