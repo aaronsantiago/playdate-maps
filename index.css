@@ -2,6 +2,26 @@
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
+#timeline {
+  position: absolute;
+    bottom: 30px;
+    width: 90vw;
+    z-index: 100;
+    background: #d3d3d384;
+    border-radius: 3px;
+    left: 2.5vw;
+}
+#slider {
+    margin-top: 3em; 
+    margin-left: 2em;
+    margin-right: 2em;
+}
+#slider .ui-slider-pip {
+    top: -12px; 
+}
+#slider .ui-slider-pip .ui-slider-label {
+    top: -18px; 
+}
 .overlay {
   position: absolute;
   top: 10px;
@@ -33,6 +53,7 @@ border: none;
 border-radius: 50%;
 cursor: pointer;
 padding: 0;
+background-size: cover;
 }
 body {
   width: 100%;

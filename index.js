@@ -30,10 +30,26 @@ function clearFocus() {
 }
 
 // playback range slider
-let slider = document.getElementById("slider");
-slider.oninput = function() {
-  currentPlayPosition = playbackLength * slider.value;
-}
+let sliderResolution = 300000;
+// let slider = document.getElementById("slider");
+// slider.oninput = function() {
+//   currentPlayPosition = playbackLength * slider.value;
+// }
+$("#slider")
+    .slider({
+        max: sliderResolution
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+
+
+  $("#slider").slider({
+      slide: function(event, ui) {
+      currentPlayPosition = playbackLength * ui.value/sliderResolution;
+      }
+  });
 
 // playback variables
 let playing = true;
@@ -49,7 +65,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYWFyb25kb3R3b3JrIiwiYSI6ImNrZjB5aGFkMzBxNzEyc
 let mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
 let mapOptions = {
   container: 'map',
-  style: 'mapbox://styles/aarondotwork/ckgb2iai52cig19mifgvweadl',
+  style: 'mapbox://styles/aarondotwork/ckh5ea27b07yt19o7ydmuikir',
   center: [-73.99042372887936, 40.692302258434665],
   zoom: 16
 };
@@ -143,7 +159,7 @@ let jsonToMap = function() {
 
           // finalization routine when all routes have been received
           if (numRoutesFilled >= journey.length - 1) {
-            let actor = new ActorPath(map);
+            let actor = new ActorPath(map, name);
             for (let route of routes) {
               actor.addGeometry(route);
             }
@@ -181,8 +197,10 @@ function animateAll() {
   let currentTime = Date.now();
   if (playing) {
     currentPlayPosition += (currentTime - previousTime) / 1000;
-    slider.value = Math.min(1, Math.max(0, currentPlayPosition / playbackLength));
   }
+  let clamped = Math.min(1, Math.max(0, currentPlayPosition / playbackLength));
+  $("#slider").slider('value', Math.floor(clamped * sliderResolution));
+  $("#currentTimeText").text("" + Math.floor(clamped * playbackLength) + ":" + (((clamped * playbackLength) % 1) * 60).toFixed(2).padStart(5, '0'));
   previousTime = currentTime;
 
   for (let anim of animations) {

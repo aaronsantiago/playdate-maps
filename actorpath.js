@@ -4,7 +4,8 @@ var origin = [
 ];
 let pointCounter = 0;
 class ActorPath {
-  constructor(map) {
+  constructor(map, name) {
+    this.name = name;
     this.map = map;
     this.routes = [];
     this.id = "actorId" + pointCounter++;
@@ -28,7 +29,7 @@ class ActorPath {
       var el = document.createElement('div');
       el.className = 'marker';
       el.style.backgroundImage =
-        'url(https://placekitten.com/g/50/50/)';
+        'url("images/' + this.name + '.png")';
       el.style.width = '50px';
       el.style.height = '50px';
 
