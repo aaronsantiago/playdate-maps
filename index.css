@@ -2,24 +2,41 @@
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
+#currentTimeText {
+  font-size:2em;
+}
 #timeline {
   position: absolute;
     bottom: 30px;
     width: 90vw;
     z-index: 100;
-    background: #a3a3a3a4;
+    background: #d3d3d3d4;
     border-radius: 3px;
     left: 2.5vw;
+  padding-top: 1em;
 }
+#playbackSpeed {
+  float: right;
+  width: 40vw;
+  margin-right: 2em;
+  margin-top: 2em;
+  text-align: right;
+}
+#playButton {
+  height: 6em;
+  margin-left: 2em;
+}
+
 #slider {
     margin-top: 3em; 
     margin-left: 2em;
     margin-right: 2em;
+  text-align: right;
 }
-#slider .ui-slider-pip {
+.slider .ui-slider-pip {
     top: -12px; 
 }
-#slider .ui-slider-pip .ui-slider-label {
+.slider .ui-slider-pip .ui-slider-label {
     top: -18px; 
 }
 .overlay {

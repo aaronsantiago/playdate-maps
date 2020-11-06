@@ -30,18 +30,35 @@ function clearFocus() {
 }
 
 // playback range slider
-let sliderResolution = 300000;
-$("#slider")
-    .slider({
-        max: sliderResolution
-    })
+$("#playbackSpeed")
+    .slider({ 
+      min: 1, 
+      max: 600, 
+      step: 1
+    })                 
     .slider("pips", {
-        first: "pip",
-        last: "pip"
-    })
+        rest: "label",
+        step: 100
+    });
+$("#slider")
+    .slider({ 
+      min: 0, 
+      max: 95, 
+      step: .001 
+    })                 
+    .slider("pips", {
+        rest: "label",
+        step: 5000
+    });
+      
 $("#slider").slider({
     slide: function(event, ui) {
-      currentPlayPosition = playbackLength * ui.value/sliderResolution;
+      currentPlayPosition = ui.value;
+    }
+});
+$("#playbackSpeed").slider({
+    slide: function(event, ui) {
+      playbackSpeed = ui.value;
     }
 });
 
@@ -50,8 +67,9 @@ function toggleTimeline() {
 }
 
 // playback variables
-let playing = true;
+let playing = false;
 let actorFocus = "";
+let playbackSpeed = 60;
 let playbackLength = 1; // use placeholder length until we calculate the true length
 let currentPlayPosition = 0;
 
@@ -78,6 +96,10 @@ let jsonToMap = function() {
   currentIteration++;
   map.remove();
   map = new mapboxgl.Map(mapOptions);
+  let actorFocusEl = document.getElementById("actorFocus");
+  while (actorFocusEl.firstChild) {
+        actorFocusEl.removeChild(actorFocusEl.firstChild);
+    }
   for (let name in journeys) {
     let journey = journeys[name];
 
@@ -85,7 +107,7 @@ let jsonToMap = function() {
     let btn = document.createElement("BUTTON");
     btn.innerHTML = "focus " + name;
     btn.onclick = () => { actorFocus = name };
-    document.getElementById("actorFocus").appendChild(btn);
+    actorFocusEl.appendChild(btn);
 
     // process individual locations per journey
     for (let leg of journey) {
@@ -194,11 +216,11 @@ function animateAll() {
   // is not running
   let currentTime = Date.now();
   if (playing) {
-    currentPlayPosition += (currentTime - previousTime) / 1000;
+    currentPlayPosition += (currentTime - previousTime) / 1000 / 60 * playbackSpeed;
   }
-  let clamped = Math.min(1, Math.max(0, currentPlayPosition / playbackLength));
-  $("#slider").slider('value', Math.floor(clamped * sliderResolution));
-  $("#currentTimeText").text("" + Math.floor(clamped * playbackLength) + ":" + (((clamped * playbackLength) % 1) * 60).toFixed(2).padStart(5, '0'));
+  $("#slider").slider('value', currentPlayPosition);
+  $("#playbackSpeed").slider('value', playbackSpeed);
+  $("#currentTimeText").text("" + Math.floor(currentPlayPosition) + ":" + (((currentPlayPosition) % 1) * 60).toFixed(2).padStart(5, '0'));
   previousTime = currentTime;
 
   for (let anim of animations) {
