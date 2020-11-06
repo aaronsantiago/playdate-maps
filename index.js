@@ -31,10 +31,6 @@ function clearFocus() {
 
 // playback range slider
 let sliderResolution = 300000;
-// let slider = document.getElementById("slider");
-// slider.oninput = function() {
-//   currentPlayPosition = playbackLength * slider.value;
-// }
 $("#slider")
     .slider({
         max: sliderResolution
@@ -43,13 +39,15 @@ $("#slider")
         first: "pip",
         last: "pip"
     })
-
-
-  $("#slider").slider({
-      slide: function(event, ui) {
+$("#slider").slider({
+    slide: function(event, ui) {
       currentPlayPosition = playbackLength * ui.value/sliderResolution;
-      }
-  });
+    }
+});
+
+function toggleTimeline() {
+  $("#timeline").toggle();
+}
 
 // playback variables
 let playing = true;
