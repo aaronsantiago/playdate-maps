@@ -34,10 +34,29 @@ class ActorPath {
       el.style.width = '50px';
       el.style.height = '50px';
 
+      var popup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false })
+      .setHTML(this.name);
+
       // add marker to map
       this.marker = new mapboxgl.Marker(el)
         .setLngLat(this.point.features[0].geometry.coordinates)
+        .setPopup(popup) // sets a popup on this marker
         .addTo(map);
+
+      const markerDiv = this.marker.getElement();
+      markerDiv.addEventListener('mouseenter', () => this.marker.togglePopup());
+      markerDiv.addEventListener('mouseleave', () => this.marker.togglePopup());
+
+      map.on('click', event => {
+        const target = event.originalEvent.target;
+        const markerWasClicked = markerDiv.contains(target);
+
+        if (markerWasClicked) {
+          this.marker.togglePopup();
+          actorFocus = this.name;
+        }
+      });
+
       ActorPath.markers.push(this.marker);
 
       // this.map.addSource(this.id, {
@@ -218,11 +237,14 @@ class ActorPath {
       }
     }
 
+    let popupYOffset = 25;
     for (let marker of ActorPath.markers) {
       let el = marker.getElement();
       el.style.width = '50px';
       el.style.height = '50px';
       marker.setOffset([0,0]);
+      let popup = marker.getPopup();
+      if (popup != null) popup.setOffset([0,-popupYOffset]);
     }
     let offsetPixels = 35;
     for (let group of groups) {
@@ -233,10 +255,14 @@ class ActorPath {
         let el = marker.getElement();
         el.style.width = offsetPixels + 'px';
         el.style.height = offsetPixels + 'px';
-        marker.setOffset([
+        let offset = [
             (count % numColumns) * offsetPixels - offsetPixels * (numColumns/2 - .5),
             Math.floor(count/numColumns) * offsetPixels - offsetPixels * (numRows/2 - .5)
-          ]);
+          ];
+        marker.setOffset(offset);
+        let popup = marker.getPopup();
+        offset[1] -= popupYOffset;
+        if (popup != null) popup.setOffset(offset);
         count++;
       }
     }

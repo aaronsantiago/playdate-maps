@@ -4,16 +4,17 @@ let baseMinutes = 13;
 let stallTime = 3;
 let endTime = 100;
 
-// menu toggle button
-let slideout = new Slideout({
-  'panel': document.getElementById('panel'),
-  'menu': document.getElementById('menu'),
-  'padding': 256,
-  'tolerance': 70
-});
-document.querySelector('.toggle-button').addEventListener('click', function() {
-  slideout.toggle();
-});
+var leftMouseButtonOnlyDown = false;
+
+function setLeftButtonState(e) {
+  leftMouseButtonOnlyDown = e.buttons === undefined 
+    ? e.which === 1 
+    : e.buttons === 1;
+}
+
+document.body.onmousedown = setLeftButtonState;
+document.body.onmousemove = setLeftButtonState;
+document.body.onmouseup = setLeftButtonState;
 
 // JSON toggle button
 function toggleJson() {
@@ -92,7 +93,9 @@ let mapOptions = {
   zoom: 16
 };
 let map = new mapboxgl.Map(mapOptions);
-
+map.on('drag', function() {
+  clearFocus();
+});
 
 let journeys = {}; // stores parsed actor path journeys
 let animations = []; // used to hold actor render functions
@@ -102,18 +105,11 @@ let jsonToMap = function() {
   currentIteration++;
   map.remove();
   map = new mapboxgl.Map(mapOptions);
-  let actorFocusEl = document.getElementById("actorFocus");
-  while (actorFocusEl.firstChild) {
-        actorFocusEl.removeChild(actorFocusEl.firstChild);
-    }
+  map.on('drag', function() {
+    clearFocus();
+  });
   for (let name in journeys) {
     let journey = journeys[name];
-
-    // setup button to focus this actor
-    let btn = document.createElement("BUTTON");
-    btn.innerHTML = "focus " + name;
-    btn.onclick = () => { actorFocus = name };
-    actorFocusEl.appendChild(btn);
 
     // process individual locations per journey
     for (let leg of journey) {
@@ -202,10 +198,11 @@ let jsonToMap = function() {
               if (myIteration != currentIteration) return;
               actor.render(currentPlayPosition - stallTime);
 
-              if (actorFocus == name) {
+              if (actorFocus == name && !leftMouseButtonOnlyDown) {
                 map.flyTo({
                   center: actor.point.features[0].geometry.coordinates,
-                  essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                  essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+                  duration: 0
                 });
               }
             }
@@ -248,23 +245,14 @@ function animateAll() {
 }
 requestAnimationFrame(animateAll);
 
-// set up "live updating" json, initialize with json from DOM
-const jsonSourceElement = document.querySelector('#json');
-jsonSourceElement.addEventListener('change', (event) => {
-  journeys = JSON.parse(event.target.value);
-  jsonToMap();
-  // localStorage.setItem('actorsJson', event.target.value);
-});
 
 let rawFile = new XMLHttpRequest();
 rawFile.overrideMimeType("application/json");
 rawFile.open("GET", "playdate_101220.json", true);
 rawFile.onreadystatechange = function() {
   if (rawFile.readyState === 4 && rawFile.status == "200") {
-    jsonSourceElement.value = rawFile.responseText;
-
     // initialize
-    journeys = JSON.parse(jsonSourceElement.value);
+    journeys = JSON.parse(rawFile.responseText);
     jsonToMap();
   }
 }
