@@ -26,6 +26,14 @@ function toggleJson() {
   }
 }
 
+function pause() {
+  playing = false;
+}
+
+function play() {
+  playing = true;
+}
+
 // playback toggle button
 function togglePlayback() {
   playing = !playing;

@@ -33,6 +33,10 @@ body { margin: 0; padding: 0; }
     margin-right: 2em;
   text-align: right;
 }
+.fastforwardIcon {
+  letter-spacing: -.2rem;
+}
+
 .slider .ui-slider-pip {
     top: -12px; 
 }
