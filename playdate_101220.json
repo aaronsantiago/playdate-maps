@@ -265,6 +265,16 @@
          "interior":1
       },
       {
+         "name":"ISSUE Project Room",
+         "coordinates":[
+            -73.98952481348374,
+            40.690692717192576
+         ],
+         "time":1,
+         "stayDuration":1,
+         "interior":0
+      },
+      {
          "name":"Brooklyn House of Detention - across from",
          "coordinates":[
             -73.98939232701781,
@@ -316,9 +326,9 @@
             -73.98881759372563,
             40.692154321583814
          ],
-         "time":48,
-         "stayDuration":5,
-         "interior":1
+         "time":44,
+         "stayDuration":1,
+         "interior":0
       },
       {
          "name":"Antonio's Pizzeria",
@@ -481,8 +491,8 @@
       {
          "name":"original Hank's Atlantic Ave",
          "coordinates":[
-            -73.98844510495121,
-            40.69237350291553
+            -73.98093123475684,
+            40.685222167267995
          ],
          "time":13,
          "stayDuration":3
