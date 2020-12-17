@@ -1,3 +1,9 @@
+// globals
+let baseHours = 14;
+let baseMinutes = 13;
+let stallTime = 3;
+let endTime = 100;
+
 // menu toggle button
 let slideout = new Slideout({
   'panel': document.getElementById('panel'),
@@ -194,7 +200,7 @@ let jsonToMap = function() {
             function animate() {
               // make sure to bail if app has been reloaded
               if (myIteration != currentIteration) return;
-              actor.render(currentPlayPosition);
+              actor.render(currentPlayPosition - stallTime);
 
               if (actorFocus == name) {
                 map.flyTo({
@@ -219,10 +225,19 @@ function animateAll() {
   let currentTime = Date.now();
   if (playing) {
     currentPlayPosition += (currentTime - previousTime) / 1000 / 60 * playbackSpeed;
+    // check if we hit the end of the play
+    if (currentPlayPosition > endTime) {
+      currentPlayPosition = endTime;
+      playing = false;
+    }
   }
   $("#slider").slider('value', currentPlayPosition);
   $("#playbackSpeed").slider('value', playbackSpeed);
-  $("#currentTimeText").text("" + Math.floor(currentPlayPosition) + ":" + (((currentPlayPosition) % 1) * 60).toFixed(2).padStart(5, '0'));
+
+  $("#currentTimeText").text(""
+    + (Math.floor((currentPlayPosition + baseMinutes)/60) + baseHours)
+    + ":" + ((Math.floor(currentPlayPosition + baseMinutes) % 60) + "").padStart(2, '0')
+    + ":" + (((currentPlayPosition) % 1) * 60).toFixed(0).padStart(2, '0'));
   previousTime = currentTime;
 
   for (let anim of animations) {
