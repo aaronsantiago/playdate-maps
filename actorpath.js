@@ -70,6 +70,8 @@ class ActorPath {
       'time': routeGeometry.time,
       'duration': routeGeometry.duration,
       'stayDuration': routeGeometry.stayDuration,
+      'interior': routeGeometry.interior,
+      'waypoint': routeGeometry.waypoint,
       'type': 'FeatureCollection',
       'features': [{
         'type': 'Feature',
@@ -136,7 +138,10 @@ class ActorPath {
         break;
       }
     }
-    let progress = Math.max(0, Math.min((currentTime - route.time - route.stayDuration) / route.duration, .999));
+    let progress = Math.max(0,
+        Math.min(
+          (currentTime - route.time - route.stayDuration)
+           / route.duration, .999));
     this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
     // this.point.features[0].properties.bearing = turf.bearing(
     //   turf.point(
@@ -150,8 +155,23 @@ class ActorPath {
     // Update the source with this new data.
     // this.map.getSource(this.id).setData(this.point);
 
-    // add marker to map
-    this.marker.setLngLat(this.point.features[0].geometry.coordinates);
+    //Target position smoothing system
+    let tgtPos = this.point.features[0].geometry.coordinates;
+
+    if (route.features[0].geometry.interior > 0
+       && currentTime < route.time + route.stayDuration) {
+      tgtPos = route.features[0].geometry.waypoint;
+    }
+
+    let myPos = this.marker.getLngLat();
+    let lerpedPos = [
+      myPos.lng + (tgtPos[0] - myPos.lng) * .5, 
+      myPos.lat + (tgtPos[1] - myPos.lat) * .5
+    ];
+
+    this.marker.setLngLat(lerpedPos);
+
+    // this.marker.setLngLat(this.point.features[0].geometry.coordinates);
 
     if (name == "Naomi") {
       map.flyTo({

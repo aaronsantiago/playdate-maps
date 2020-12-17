@@ -162,9 +162,11 @@ let jsonToMap = function() {
           // pass metadata from raw JSON through to the individual
           // routes
           let routeGeometry = directions.routes[0].geometry;
+          routeGeometry.waypoint = journey[i - 1].coordinates;
           routeGeometry.time = journey[i - 1].time;
           routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
           routeGeometry.stayDuration = journey[i - 1].stayDuration;
+          routeGeometry.interior = journey[i - 1].interior;
 
 
           if (routeGeometry.duration < 0) {
