@@ -33,6 +33,18 @@ body { margin: 0; padding: 0; }
     margin-right: 2em;
   text-align: right;
 }
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .15s linear;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s .15s, opacity .15s linear;
+}
+
 .fastforwardIcon {
   letter-spacing: -.2rem;
 }

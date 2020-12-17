@@ -4,7 +4,17 @@ let baseMinutes = 13;
 let stallTime = 3;
 let endTime = 100;
 
+let hideBarWaitSeconds = 2;
+let hideBarTimer = 0;
+let isMouseInControls = false;
+
 var leftMouseButtonOnlyDown = false;
+
+$( "#timeline" ).hover(function() {
+      isMouseInControls = true;
+    }, function() {
+      isMouseInControls = false;
+    });
 
 function setLeftButtonState(e) {
   leftMouseButtonOnlyDown = e.buttons === undefined 
@@ -16,13 +26,12 @@ document.body.onmousedown = setLeftButtonState;
 document.body.onmousemove = setLeftButtonState;
 document.body.onmouseup = setLeftButtonState;
 
-// JSON toggle button
-function toggleJson() {
-  let x = document.getElementById("json");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
+function toggleFullscreen() {
+  if (document.fullscreenElement != null) {
+    document.exitFullscreen();
+  }
+  else {
+    document.body.requestFullscreen();
   }
 }
 
@@ -100,10 +109,7 @@ let mapOptions = {
   center: [-73.99042372887936, 40.692302258434665],
   zoom: 16
 };
-let map = new mapboxgl.Map(mapOptions);
-map.on('drag', function() {
-  clearFocus();
-});
+let map = null;
 
 let journeys = {}; // stores parsed actor path journeys
 let animations = []; // used to hold actor render functions
@@ -111,10 +117,13 @@ let animations = []; // used to hold actor render functions
 let currentIteration = -1; // used to reset state when JSON is refreshed
 let jsonToMap = function() {
   currentIteration++;
-  map.remove();
+  if (map != null) map.remove();
   map = new mapboxgl.Map(mapOptions);
   map.on('drag', function() {
     clearFocus();
+  });
+  map.on('mousemove', function() {
+    hideBarTimer = 0;
   });
   for (let name in journeys) {
     let journey = journeys[name];
@@ -228,8 +237,16 @@ function animateAll() {
   // ensure deltaTime calculations still happen when playback
   // is not running
   let currentTime = Date.now();
+  let deltaTime = (currentTime - previousTime) / 1000;
+  if (!isMouseInControls) hideBarTimer += deltaTime;
+  if (hideBarTimer < hideBarWaitSeconds) {
+    $("#timeline").removeClass("hidden").addClass("visible");
+  }
+  else {
+    $("#timeline").removeClass("visible").addClass("hidden");
+  }
   if (playing) {
-    currentPlayPosition += (currentTime - previousTime) / 1000 / 60 * playbackSpeed;
+    currentPlayPosition += deltaTime / 60 * playbackSpeed;
     // check if we hit the end of the play
     if (currentPlayPosition > endTime) {
       currentPlayPosition = endTime;
