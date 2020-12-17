@@ -10,6 +10,21 @@ let isMouseInControls = false;
 
 var leftMouseButtonOnlyDown = false;
 
+
+$( document ).on( "keydown", function( event ) {
+  if (event.which == 32) { // spacebar
+    togglePlayback();
+  }
+  for (let i = 1; i < 5; i++) {
+    if (event.which == 48 + i) { // 1 - 4 keys
+      $("#speed" + i).click();
+    }
+  }
+  if (event.which == 82) { // r key
+    currentPlayPosition = 0;
+  }
+});
+
 $( "#timeline" ).hover(function() {
       isMouseInControls = true;
     }, function() {
@@ -251,6 +266,9 @@ function animateAll() {
     if (currentPlayPosition > endTime) {
       currentPlayPosition = endTime;
       playing = false;
+    }
+    if (currentPlayPosition < 0) {
+      currentPlayPosition = 0;
     }
   }
   $("#slider").slider('value', currentPlayPosition);
