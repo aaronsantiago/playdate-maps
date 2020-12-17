@@ -4,6 +4,7 @@ var origin = [
 ];
 let pointCounter = 0;
 class ActorPath {
+  static markers = [];
   constructor(map, name) {
     this.name = name;
     this.map = map;
@@ -37,7 +38,7 @@ class ActorPath {
       this.marker = new mapboxgl.Marker(el)
         .setLngLat(this.point.features[0].geometry.coordinates)
         .addTo(map);
-
+      ActorPath.markers.push(this.marker);
 
       // this.map.addSource(this.id, {
       //     'type': 'geojson',
@@ -170,13 +171,74 @@ class ActorPath {
     ];
 
     this.marker.setLngLat(lerpedPos);
+  }
 
-    // this.marker.setLngLat(this.point.features[0].geometry.coordinates);
+  static groupNearby() {
+    let groupMap = new WeakMap();
+    let groups = [];
 
-    if (name == "Naomi") {
-      map.flyTo({
-        center: actor.point.features[0].geometry.coordinates
-      });
+    for (let i = 0; i < ActorPath.markers.length - 1; i++) {
+      for (let j = i + 1; j < ActorPath.markers.length; j++) {
+        let marker = ActorPath.markers[i];
+        let marker2 = ActorPath.markers[j];
+
+        let distThreshold = 10;
+        let p1 = map.project(marker.getLngLat());
+        let p2 = map.project(marker2.getLngLat());
+
+        let distSquared = (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+        if (distSquared < distThreshold * distThreshold) {
+          if (groupMap.has(marker) && groupMap.has(marker2)) {
+            let group1 = groupMap.get(marker);
+            let group2 = groupMap.get(marker2);
+
+            if (!(group1 === group2)) {
+              for (let other of group2) {
+                groupMap.set(other, group1);
+                group1.push(other);
+              }
+              groups.splice(groups.indexOf(group2), 1);
+            }
+          }
+          else if (groupMap.has(marker)) {
+            groupMap.set(marker2, groupMap.get(marker));
+            groupMap.get(marker).push(marker2);
+          }
+          else if (groupMap.has(marker2)) {
+            groupMap.set(marker, groupMap.get(marker2));
+            groupMap.get(marker2).push(marker);
+          }
+          else {
+            let group = [marker, marker2];
+            groupMap.set(marker, group);
+            groupMap.set(marker2, group);
+            groups.push(group);
+          }
+        }
+      }
+    }
+
+    for (let marker of ActorPath.markers) {
+      let el = marker.getElement();
+      el.style.width = '50px';
+      el.style.height = '50px';
+      marker.setOffset([0,0]);
+    }
+    let offsetPixels = 35;
+    for (let group of groups) {
+      let count = 0;
+      let numColumns = Math.min(3, group.length);
+      let numRows = Math.floor(group.length / numColumns);
+      for (let marker of group) {
+        let el = marker.getElement();
+        el.style.width = offsetPixels + 'px';
+        el.style.height = offsetPixels + 'px';
+        marker.setOffset([
+            (count % numColumns) * offsetPixels - offsetPixels * (numColumns/2 - .5),
+            Math.floor(count/numColumns) * offsetPixels - offsetPixels * (numRows/2 - .5)
+          ]);
+        count++;
+      }
     }
   }
 }

@@ -228,6 +228,7 @@ function animateAll() {
   for (let anim of animations) {
     anim();
   }
+  ActorPath.groupNearby();
   requestAnimationFrame(animateAll);
 }
 requestAnimationFrame(animateAll);
