@@ -4,7 +4,6 @@ var origin = [
 ];
 let pointCounter = 0;
 class ActorPath {
-  static markers = [];
   constructor(map, name) {
     this.name = name;
     this.map = map;
@@ -268,3 +267,6 @@ class ActorPath {
     }
   }
 }
+
+ActorPath.markers = [];
+

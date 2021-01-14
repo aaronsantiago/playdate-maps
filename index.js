@@ -51,16 +51,57 @@ function toggleFullscreen() {
 }
 
 function pause() {
+  removeSpeedButtonEnabledClass();
   playing = false;
+  $('#pauseButton').addClass('enabled');
+}
+let currentSpeed = "#speed1";
+function play() {
+  removeSpeedButtonEnabledClass();
+  playing = true;
+  $(currentSpeed).addClass('enabled');
 }
 
-function play() {
-  playing = true;
+function removeSpeedButtonEnabledClass() {
+  $('#pauseButton').removeClass('enabled');
+  $('#speed1').removeClass('enabled');
+  $('#speed2').removeClass('enabled');
+  $('#speed3').removeClass('enabled');
+  $('#speed4').removeClass('enabled');
+}
+
+function speed1Button() {
+  playbackSpeed = 1;
+  currentSpeed = "#speed1";
+  play();
+}
+
+function speed2Button() {
+  playbackSpeed = 5;
+  currentSpeed = "#speed2";
+  play();
+}
+
+function speed3Button() {
+  playbackSpeed = 60;
+  currentSpeed = "#speed3";
+  play();
+}
+
+function speed4Button() {
+  playbackSpeed = 200;
+  currentSpeed = "#speed4";
+  play();
 }
 
 // playback toggle button
 function togglePlayback() {
-  playing = !playing;
+  if (playing) {
+    pause();
+  }
+  else {
+    play();
+  }
 }
 
 // actor focus clear 

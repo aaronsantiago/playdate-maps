@@ -2,8 +2,23 @@
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
+#timelineButtons button {
+  font-size: 1.2em;
+  border-radius: 1.5em;
+  border-width: 0;
+  vertical-align: middle;
+}
+#timelineButtons button:hover {
+  background-color: #814930;
+}
+
+button.enabled {
+  background-color: #612910;
+}
+
 #currentTimeText {
   font-size:2em;
+  vertical-align: middle;
 }
 #timeline {
   position: absolute;
