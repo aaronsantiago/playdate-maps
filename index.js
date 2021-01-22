@@ -1,3 +1,29 @@
+
+
+var monolog = new Monolog({
+  loader  : false,
+  content: "test",
+  close: true,
+  onOpening: function() {
+    console.log('OPENING ...');
+  },
+  onOpened: function() {
+    console.log('... OPENED !');
+    this.setContent('<h1 style="text-align: center;">Made by <a href="https://aaron.work">Aaron Santiago</a>.</h1>');
+  },
+  onClosing: function() {
+    console.log('CLOSING ...');
+  },
+  onClosed : function () {
+    console.log('... CLOSED !');
+  }
+});
+
+// tooltip setup
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip({delay: {show: 500, hide: 100}});   
+});
+
 // globals
 let baseHours = 14;
 let baseMinutes = 13;
@@ -22,6 +48,9 @@ $( document ).on( "keydown", function( event ) {
   }
   if (event.which == 82) { // r key
     currentPlayPosition = 0;
+  }
+  if (event.which == 8) { // backspace key
+    resetButton();
   }
 });
 
@@ -68,6 +97,11 @@ function removeSpeedButtonEnabledClass() {
   $('#speed2').removeClass('enabled');
   $('#speed3').removeClass('enabled');
   $('#speed4').removeClass('enabled');
+}
+
+
+function resetButton() {
+  currentPlayPosition = 0;
 }
 
 function speed1Button() {
@@ -126,10 +160,10 @@ $("#slider")
       max: 95, 
       step: .001 
     })                 
-    .slider("pips", {
-        rest: "label",
-        step: 5000
-    });
+    // .slider("pips", {
+    //     rest: "label",
+    //     step: 5000
+    // });
       
 $("#slider").slider({
     slide: function(event, ui) {

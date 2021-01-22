@@ -2,11 +2,27 @@
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
+#question {
+  position: absolute;
+  z-index: 100;
+  font-size: 3em;
+  color: #FFFFFFB3;
+  top: 1em;
+  right: 1em;
+  cursor: pointer;
+}
+#question:hover {
+  color: #FFFFFFFF;
+}
+
+#timelineButtons {
+  margin-left: 1.5em;
+}
+
 #timelineButtons button {
   font-size: 1.2em;
   border-radius: 1.5em;
   border-width: 0;
-  vertical-align: middle;
 }
 #timelineButtons button:hover {
   background-color: #814930;
@@ -19,15 +35,18 @@ button.enabled {
 #currentTimeText {
   font-size:2em;
   vertical-align: middle;
+  float:right;
+  margin-right: 1em;
+  line-height: 1em;
 }
 #timeline {
   position: absolute;
-    bottom: 30px;
-    width: 90vw;
-    z-index: 100;
-    background: #d3d3d3d4;
-    border-radius: 3px;
-    left: 2.5vw;
+  bottom: 30px;
+  width: 90vw;
+  z-index: 100;
+  background: #d3d3d3d4;
+  border-radius: 3px;
+  left: 4vw;
   padding-top: 1em;
 }
 #playbackSpeed {
@@ -43,9 +62,10 @@ button.enabled {
 }
 
 #slider {
-    margin-top: 3em; 
-    margin-left: 2em;
-    margin-right: 2em;
+  margin-top: 1em; 
+  margin-bottom: 1em; 
+  margin-left: 2em;
+  margin-right: 2em;
   text-align: right;
 }
 .visible {
