@@ -261,8 +261,13 @@ let jsonToMap = function() {
       let waypoints = [
             journey[i - 1]
           ];
-      if (journey[i].hasOwnProperty("pass_through"))
-          waypoints.push({coordinates: journey[i]["pass_through"]});
+      if (journey[i].hasOwnProperty("pass_through")) {
+        let all_coords = journey[i]["pass_through"];
+        for (let j = 0; j < all_coords.length; j += 2) {
+          let coords = [all_coords[j], all_coords[j + 1]];
+          waypoints.push({coordinates: coords});
+        }
+      }
       waypoints.push(journey[i]);
       console.log(waypoints);
       mapboxClient.directions.getDirections({
