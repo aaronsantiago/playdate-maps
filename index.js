@@ -177,7 +177,7 @@ let mapboxClient = mapboxSdk({
   });
 let mapOptions = {
   container: 'map',
-  style: 'mapbox://styles/aarondotwork/ckh5ea27b07yt19o7ydmuikir',
+  style: 'mapbox://styles/aarondotwork/cklmp35ni41gc17qmmxn2txo1',
   center: [-73.99042372887936, 40.692302258434665],
   zoom: 16
 };
