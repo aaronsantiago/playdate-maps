@@ -256,13 +256,19 @@ let jsonToMap = function() {
     let myIteration = currentIteration;
     for (let i = 1; i < journey.length; i++) {
       routes.push[{}];
+      // generate waypoints array, optionally including a "passthrough" location
+      // that influences the path generated
+      let waypoints = [
+            journey[i - 1]
+          ];
+      if (journey[i].hasOwnProperty("pass_through"))
+          waypoints.push({coordinates: journey[i]["pass_through"]});
+      waypoints.push(journey[i]);
+      console.log(waypoints);
       mapboxClient.directions.getDirections({
           profile: 'walking',
           geometries: 'geojson',
-          waypoints: [
-            journey[i - 1],
-            journey[i],
-          ]
+          waypoints: waypoints
         })
         .send()
         .then((response) => {
