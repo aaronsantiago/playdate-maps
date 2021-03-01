@@ -36,7 +36,7 @@ let monolog = new Monolog({
     },
     onOpened: function () {
       console.log('... OPENED !');
-      this.setContent('<h1 style="text-align: center;">Made by <a href="https://aaron.work">Aaron Santiago</a>.</h1>');
+      this.setContent('<h1 style="text-align: center;">Made by <a href="https://make-a-fountain.com/yingliu">Ying Liu</> and <a href="https://aaron.work">Aaron Santiago</a>.</h1>');
     },
     onClosing: function () {
       console.log('CLOSING ...');
@@ -256,7 +256,6 @@ let jsonToMap = function () {
         }
       }
       waypoints.push(journey[i]);
-      console.log(waypoints);
       mapboxClient.directions.getDirections({
         profile: 'walking',
         geometries: 'geojson',
@@ -270,6 +269,10 @@ let jsonToMap = function () {
         // routes
         let routeGeometry = directions.routes[0].geometry;
         routeGeometry.waypoint = journey[i - 1].coordinates;
+        if (routeGeometry.coordinates.length <= 0) {
+            console.log("ya");
+            console.log(waypoints);
+        }
         routeGeometry.time = journey[i - 1].time;
         routeGeometry.duration = journey[i].time - journey[i - 1].time - journey[i - 1].stayDuration;
         routeGeometry.stayDuration = journey[i - 1].stayDuration;
@@ -277,9 +280,6 @@ let jsonToMap = function () {
 
         if (routeGeometry.duration < 0) {
           console.log("incorrect formatting for time: " + name);
-        }
-        if (routeGeometry.duration < routeGeometry.stayDuration) {
-          console.log("incorrect formatting for stayDuration: " + name)
         }
 
         routes[i - 1] = routeGeometry;
