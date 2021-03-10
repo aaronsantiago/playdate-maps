@@ -30,7 +30,7 @@ An example entry from the JSON file
 
  A list of things that are in this app:
 
-   - Playback Controls
+  - Playback Controls
     - Play/pause
     - Multiple playback speeds
     - Timeline scrubbing
