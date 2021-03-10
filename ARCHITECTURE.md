@@ -12,10 +12,7 @@ An example entry from the JSON file
 {
   "name": "Top Beauty",
   "pass_through": [-73.98749011000541, 40.691585313677024],
-  "coordinates": [
-    -73.98724293447953,
-    40.691923693517424
-  ],
+  "coordinates": [ -73.98724293447953, 40.691923693517424],
   "time": 16,
   "stayDuration": 5,
   "interior": 1
