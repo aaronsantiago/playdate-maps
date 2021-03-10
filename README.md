@@ -1,4 +1,4 @@
-#PLAYDATE
+# PLAYDATE
 
 PLAYDATE was a performance that took place across a large area of downtown Brooklyn where audiences could watch performers run errands and interact with the world from ISSUE Project Room.
 
