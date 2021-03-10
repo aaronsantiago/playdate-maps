@@ -11,4 +11,4 @@ This app is currently hosted at: http://elastic-ride-459b16.netlify.app
 
 More information about the PLAYDATE project available [here](https://issueprojectroom.org/event/ying-liu-playdate).
 
-For information about the codebase, check the ARCHITECTURE.md section.
+For information about the codebase, check the [ARCHITECTURE.md section](https://github.com/aaronsantiago/playdate-maps/blob/master/ARCHITECTURE.md).

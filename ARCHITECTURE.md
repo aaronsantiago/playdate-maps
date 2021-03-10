@@ -1,9 +1,9 @@
 
-##High Level
+## High Level
 
 PLAYDATE web is a Mapbox map with markers that represent performers. At page load, a JSON file with data about what locations performers visited and when is parsed, and requests are sent to the Mapbox API to generate walking paths for each actor for the entirety of the runtime. These paths are used to update the positions of each marker.
 
-##JSON format
+## JSON format
 
 The JSON is a map of actor names to a list of destination entries. These entries describe where and when an actor goes, along with other information.
 
@@ -29,7 +29,7 @@ An example entry from the JSON file
  - `stayDuration`: optional, notates how long the actor stays at this destination before leaving for the next one.,
  - `interior`: optional, if this is 1 then the marker position will be set to the *actual coordinates* in the destination rather than the destination given by Mapbox as the end of the path. Mapbox tends to make the actors stay on the street in the directions response.
 
- ##Features overview
+ ## Features overview
 
  A list of things that are in this app:
 
