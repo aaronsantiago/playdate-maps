@@ -23,6 +23,7 @@ class ActorPath {
     this.totalDuration = 0;
     this.marker = null;
     this.loaded = false;
+    this.currentRoute = 0;
     let onLoad = () => {
 
       // create a DOM element for the marker
@@ -43,8 +44,8 @@ class ActorPath {
         .addTo(map);
 
       const markerDiv = this.marker.getElement();
-      markerDiv.addEventListener('mouseenter', () => this.marker.togglePopup());
-      markerDiv.addEventListener('mouseleave', () => this.marker.togglePopup());
+      markerDiv.addEventListener('mouseenter', () => {this.marker.togglePopup()});
+      markerDiv.addEventListener('mouseleave', () => {this.marker.togglePopup()});
 
       map.on('click', event => {
         const target = event.originalEvent.target;
@@ -111,14 +112,17 @@ class ActorPath {
     this.totalDuration = this.routes[this.routes.length - 1].time
         + this.routes[this.routes.length - 1].stayDuration + 1;
 
-    let pointCounter = Math.random();
-    let onLoad = function() {
-      if (name == "Naomi") {
+    let onLoad = () => {
+      // if (name == "Naomi") {
+
+      let colors = chromatism.fade( this.routes.length, '#f6828433', '#86fff4ff').colours;
+      for (let i = 0; i < this.routes.length; i++) {
+        let pointCounter = Math.random();
         var route = {
           'type': 'FeatureCollection',
           'features': [{
             'type': 'Feature',
-            "geometry": routeGeometry,
+            "geometry": this.routes[i].features[0].geometry,
           }]
         };
         // Add a source and layer displaying a point which will be animated in a circle.
@@ -133,11 +137,30 @@ class ActorPath {
           'source': 'route' + pointCounter,
           'type': 'line',
           'paint': {
-            'line-width': 2,
-            'line-color': '#007cbf'
+            'line-width': 6,
+            'line-color': chromatism.convert(colors[i]).hex
+          },
+          'layout': {
+            'visibility': 'none'
           }
         });
+        let markerDiv = this.marker.getElement();
+        markerDiv.addEventListener('mouseenter', () => {
+          if (Math.abs(this.currentRoute - i) > 2) return;
+          map.setLayoutProperty(
+              "route" + pointCounter,
+              'visibility',
+              'visible'
+            );});
+        markerDiv.addEventListener('mouseleave', () => {
+          map.setLayoutProperty(
+              "route" + pointCounter,
+              'visibility',
+              'none'
+            );});
+
       }
+      // }
     }
     if (!map.loaded()) {
       map.on('load', onLoad);
@@ -153,6 +176,7 @@ class ActorPath {
       let nextRoute = this.routes[i];
       if (nextRoute.time < currentTime) {
         route = nextRoute;
+        this.currentRoute = i;
       } else {
         break;
       }

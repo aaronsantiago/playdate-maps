@@ -54,9 +54,7 @@
     }, {
       "name": "McDonald's Flatbush Ave Extension",
       "coordinates": [
-        -73.98080433071175,
-        40.688885800079134
-      ],
+        -73.98069708289398,40.68899156434517],
       "time": 56,
       "stayDuration": 18,
       "interior": 1
@@ -307,7 +305,7 @@
         40.69289260483458
       ],
       "time": 48,
-      "stayDuration": 12,
+      "stayDuration": 11,
       "interior": 1
     }, {
       "name": "Startbucks Court Street",
@@ -470,8 +468,8 @@
     }, {
       "name": "Hank's",
       "coordinates": [
-        -73.98093806075582,
-        40.685288288842145
+        -73.98844510495121,
+        40.69237350291553
       ],
       "time": 65,
       "stayDuration": 1
@@ -706,10 +704,8 @@
       "stayDuration": 3
     }, {
       "name": "Mono No Aware",
-      "pass_through": [-73.98228188452129, 40.68938754257056],
       "coordinates": [
-        -73.99305893774243,
-        40.69216613073874
+        -73.97979011251334,40.687714389906546
       ],
       "time": 61,
       "stayDuration": 9,
