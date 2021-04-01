@@ -146,7 +146,7 @@ class ActorPath {
         });
         let markerDiv = this.marker.getElement();
         markerDiv.addEventListener('mouseenter', () => {
-          if (Math.abs(this.currentRoute - i) > 2) return;
+          if (i - this.currentRoute > 2 || i - this.currentRoute < 0) return;
           map.setLayoutProperty(
               "route" + pointCounter,
               'visibility',
