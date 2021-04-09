@@ -184,9 +184,13 @@ let mapOptions = {
 let map = null;
 
 let journeys = {}; // stores parsed actor path journeys
+let metadata = {}; // stores parsed actor metadata events
 let animations = []; // used to hold actor render functions
 
 let currentIteration = -1; // used to reset state when JSON is refreshed
+let jsonActorToMetadata = function (name, actor) {
+  actor.metadata = metadata[name] || [];
+}
 let jsonToMap = function () {
   currentIteration++;
   if (map != null)
@@ -291,6 +295,7 @@ let jsonToMap = function () {
           for (let route of routes) {
             actor.addGeometry(route);
           }
+          jsonActorToMetadata(name, actor);
           actor.finalize();
           // update playback duration to longest actor duration
           if (actor.totalDuration > playbackLength) {
@@ -372,7 +377,9 @@ rawFile.open("GET", "playdate_101220.json", true);
 rawFile.onreadystatechange = function () {
   if (rawFile.readyState === 4 && rawFile.status == "200") {
     // initialize
-    journeys = JSON.parse(rawFile.responseText);
+    let fullJson = JSON.parse(rawFile.responseText);
+    journeys = fullJson["journeys"];
+    metadata = fullJson["metadata"];
     jsonToMap();
   }
 }

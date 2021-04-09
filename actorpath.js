@@ -24,6 +24,7 @@ class ActorPath {
     this.marker = null;
     this.loaded = false;
     this.currentRoute = 0;
+    this.metadata = [];
     let onLoad = () => {
 
       // create a DOM element for the marker
@@ -172,6 +173,23 @@ class ActorPath {
   render(currentTime) {
     if (!this.loaded) return;
     let route = this.routes[0];
+
+    // check metadata for special events.
+    let appeared = true;
+    for (let i = 0; i < this.metadata.length; i++) {
+      let metadata = this.metadata[i];
+      if (metadata["type"] == "appear") {
+        appeared = false;
+        if (metadata.time < currentTime) {
+          appeared = true;
+        }
+      }
+      if (metadata["type"] == "disappear" && currentTime > metadata.time) {
+        appeared = false;
+      }
+    }
+
+    // get current route to read position from
     for (let i = 0; i < this.routes.length; i++) {
       let nextRoute = this.routes[i];
       if (nextRoute.time < currentTime) {
@@ -181,15 +199,26 @@ class ActorPath {
         break;
       }
     }
+
+    // calculate progress along the route
     let progress = Math.max(0,
         Math.min(
           (currentTime - route.time - route.stayDuration)
            / route.duration, .999));
+
+    // try/catch to prevent errors from crashing the app
 try {
-    this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
+    if (appeared) {
+      this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
+    }
+    else {
+      this.point.features[0].geometry.coordinates = [10,10];
+    }
+
 }
 catch (e) {
-console.log("something went wrong");
+console.log("render error");
+console.log(e);
 }
     // this.point.features[0].properties.bearing = turf.bearing(
     //   turf.point(
@@ -206,9 +235,12 @@ console.log("something went wrong");
     //Target position smoothing system
     let tgtPos = this.point.features[0].geometry.coordinates;
 
-    if (route.features[0].geometry.interior > 0
-       && currentTime < route.time + route.stayDuration) {
-      tgtPos = route.features[0].geometry.waypoint;
+    //If visible and indoors, use the position of the landmark instead of the map position
+    if (appeared) {
+      if (route.features[0].geometry.interior > 0
+         && currentTime < route.time + route.stayDuration) {
+        tgtPos = route.features[0].geometry.waypoint;
+      }
     }
 
     let myPos = this.marker.getLngLat();
