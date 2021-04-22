@@ -36,7 +36,7 @@ class ActorPath {
       el.style.height = '50px';
 
       var popup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false })
-      .setHTML(this.name);
+        .setHTML(this.name);
 
       // add marker to map
       this.marker = new mapboxgl.Marker(el)
@@ -45,8 +45,8 @@ class ActorPath {
         .addTo(map);
 
       const markerDiv = this.marker.getElement();
-      markerDiv.addEventListener('mouseenter', () => {this.marker.togglePopup()});
-      markerDiv.addEventListener('mouseleave', () => {this.marker.togglePopup()});
+      markerDiv.addEventListener('mouseenter', () => { this.marker.togglePopup() });
+      markerDiv.addEventListener('mouseleave', () => { this.marker.togglePopup() });
 
       map.on('click', event => {
         const target = event.originalEvent.target;
@@ -111,12 +111,12 @@ class ActorPath {
       // this.routes[i].duration = this.routes[i + 1].time - this.routes[i].time;
     }
     this.totalDuration = this.routes[this.routes.length - 1].time
-        + this.routes[this.routes.length - 1].stayDuration + 1;
+      + this.routes[this.routes.length - 1].stayDuration + 1;
 
     let onLoad = () => {
       // if (name == "Naomi") {
 
-      let colors = chromatism.fade( this.routes.length, '#f6828433', '#86fff4ff').colours;
+      let colors = chromatism.fade(this.routes.length, '#f6828433', '#86fff4ff').colours;
       for (let i = 0; i < this.routes.length; i++) {
         let pointCounter = Math.random();
         var route = {
@@ -149,16 +149,18 @@ class ActorPath {
         markerDiv.addEventListener('mouseenter', () => {
           if (i - this.currentRoute > 2 || i - this.currentRoute < 0) return;
           map.setLayoutProperty(
-              "route" + pointCounter,
-              'visibility',
-              'visible'
-            );});
+            "route" + pointCounter,
+            'visibility',
+            'visible'
+          );
+        });
         markerDiv.addEventListener('mouseleave', () => {
           map.setLayoutProperty(
-              "route" + pointCounter,
-              'visibility',
-              'none'
-            );});
+            "route" + pointCounter,
+            'visibility',
+            'none'
+          );
+        });
 
       }
       // }
@@ -202,24 +204,24 @@ class ActorPath {
 
     // calculate progress along the route
     let progress = Math.max(0,
-        Math.min(
-          (currentTime - route.time - route.stayDuration)
-           / route.duration, .999));
+      Math.min(
+        (currentTime - route.time - route.stayDuration)
+        / route.duration, .999));
 
     // try/catch to prevent errors from crashing the app
-try {
-    if (appeared) {
-      this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
-    }
-    else {
-      this.point.features[0].geometry.coordinates = [10,10];
-    }
+    try {
+      if (appeared) {
+        this.point.features[0].geometry.coordinates = turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates;
+      }
+      else {
+        this.point.features[0].geometry.coordinates = [10, 10];
+      }
 
-}
-catch (e) {
-console.log("render error");
-console.log(e);
-}
+    }
+    catch (e) {
+      console.log("render error");
+      console.log(e);
+    }
     // this.point.features[0].properties.bearing = turf.bearing(
     //   turf.point(
     //     turf.along(route.features[0], route.lineDistance * progress, 'kilometers').geometry.coordinates
@@ -238,14 +240,14 @@ console.log(e);
     //If visible and indoors, use the position of the landmark instead of the map position
     if (appeared) {
       if (route.features[0].geometry.interior > 0
-         && currentTime < route.time + route.stayDuration) {
+        && currentTime < route.time + route.stayDuration) {
         tgtPos = route.features[0].geometry.waypoint;
       }
     }
 
     let myPos = this.marker.getLngLat();
     let lerpedPos = [
-      myPos.lng + (tgtPos[0] - myPos.lng) * .5, 
+      myPos.lng + (tgtPos[0] - myPos.lng) * .5,
       myPos.lat + (tgtPos[1] - myPos.lat) * .5
     ];
 
@@ -302,9 +304,9 @@ console.log(e);
       let el = marker.getElement();
       el.style.width = '50px';
       el.style.height = '50px';
-      marker.setOffset([0,0]);
+      marker.setOffset([0, 0]);
       let popup = marker.getPopup();
-      if (popup != null) popup.setOffset([0,-popupYOffset]);
+      if (popup != null) popup.setOffset([0, -popupYOffset]);
     }
     let offsetPixels = 35;
     for (let group of groups) {
@@ -316,9 +318,9 @@ console.log(e);
         el.style.width = offsetPixels + 'px';
         el.style.height = offsetPixels + 'px';
         let offset = [
-            (count % numColumns) * offsetPixels - offsetPixels * (numColumns/2 - .5),
-            Math.floor(count/numColumns) * offsetPixels - offsetPixels * (numRows/2 - .5)
-          ];
+          (count % numColumns) * offsetPixels - offsetPixels * (numColumns / 2 - .5),
+          Math.floor(count / numColumns) * offsetPixels - offsetPixels * (numRows / 2 - .5)
+        ];
         marker.setOffset(offset);
         let popup = marker.getPopup();
         offset[1] -= popupYOffset;
@@ -330,4 +332,3 @@ console.log(e);
 }
 
 ActorPath.markers = [];
-
