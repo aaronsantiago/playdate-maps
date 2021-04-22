@@ -28,6 +28,8 @@ class ActorPath {
     this.loaded = false;
     this.currentRoute = 0;
     this.metadata = [];
+    this.offsetX = (Math.random() - .5)/1000000;
+    this.offsetY = (Math.random() - .5)/1000000;
     let onLoad = () => {
 
       // create a DOM element for the marker
@@ -238,7 +240,11 @@ class ActorPath {
     // this.map.getSource(this.id).setData(this.point);
 
     //Target position smoothing system
-    let tgtPos = this.point.features[0].geometry.coordinates;
+    // shallow copy this to prevent drifting
+    let tgtPos = [
+      this.point.features[0].geometry.coordinates[0],
+      this.point.features[0].geometry.coordinates[1]
+      ];
 
     //If visible and indoors, use the position of the landmark instead of the map position
     if (appeared) {
@@ -260,14 +266,49 @@ class ActorPath {
           ];
       }
     }
+    tgtPos[0] += this.offsetX;
+    tgtPos[1] += this.offsetY;
 
     let myPos = this.marker.getLngLat();
     let lerpedPos = [
-      myPos.lng + (tgtPos[0] - myPos.lng) * .5,
-      myPos.lat + (tgtPos[1] - myPos.lat) * .5
+      myPos.lng + (tgtPos[0] - myPos.lng) * .2,
+      myPos.lat + (tgtPos[1] - myPos.lat) * .2
     ];
 
     this.marker.setLngLat(lerpedPos);
+  }
+
+  static collisionDetection() {
+    for (let i = 0; i < ActorPath.markers.length - 1; i++) {
+      for (let j = i + 1; j < ActorPath.markers.length; j++) {
+        let marker = ActorPath.markers[i];
+        let marker2 = ActorPath.markers[j];
+        let distThreshold = 40;
+        let p1 = map.project(marker.getLngLat());
+        let p2 = map.project(marker2.getLngLat());
+
+        let distSquared = (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+        if (distSquared < distThreshold * distThreshold) {
+          let dist = Math.sqrt(distSquared);
+          let overlapDistance = distThreshold - dist;
+          let p1Angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+          let p2Angle = Math.atan2(p1.y - p2.y, p1.x - p2.x);
+
+          p1Angle -= p1Angle % Math.PI/32;
+          p2Angle -= p2Angle % Math.PI/32;
+          let newP1 = {
+            x: p1.x - Math.cos(p1Angle) * overlapDistance/2,
+            y: p1.y - Math.sin(p1Angle) * overlapDistance/2
+          };
+          let newP2 = {
+            x: p2.x - Math.cos(p2Angle) * overlapDistance/2,
+            y: p2.y - Math.sin(p2Angle) * overlapDistance/2
+          };
+          marker.setLngLat(map.unproject(newP1));
+          marker2.setLngLat(map.unproject(newP2));
+        }
+      }
+    }
   }
 
   static groupNearby() {

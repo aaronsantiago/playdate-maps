@@ -359,7 +359,8 @@ function animateAll() {
   for (let anim of animations) {
     anim();
   }
-  ActorPath.groupNearby();
+  // ActorPath.groupNearby();
+  ActorPath.collisionDetection();
   requestAnimationFrame(animateAll);
 }
 requestAnimationFrame(animateAll);
