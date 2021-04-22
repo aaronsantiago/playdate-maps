@@ -60,7 +60,8 @@ $(document).ready(function () {
 $("#slider").slider({
   slide: function (event, ui) {
     currentPlayPosition = ui.value;
-  }
+  },
+  step: .001,
 });
 
 // ************ keyboard/mouse *****************************************

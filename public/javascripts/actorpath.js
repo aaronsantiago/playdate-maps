@@ -1,3 +1,6 @@
+
+const interiorTransitionDuration = .03;
+
 var origin = [
   -73.974663,
   40.685474
@@ -241,7 +244,20 @@ class ActorPath {
     if (appeared) {
       if (route.features[0].geometry.interior > 0
         && currentTime < route.time + route.stayDuration) {
-        tgtPos = route.features[0].geometry.waypoint;
+
+        // check if we are transitioning TO being indoors
+        let interiorTransitionAmount =
+          Math.max(0, Math.min(1,
+            (currentTime - route.time)/interiorTransitionDuration));
+        // check if we are transitioning FROM being indoors
+        interiorTransitionAmount = 
+          Math.min(interiorTransitionAmount,
+            ((route.time + route.stayDuration) - currentTime)/interiorTransitionDuration);
+        
+        tgtPos = [
+            tgtPos[0] + (route.features[0].geometry.waypoint[0] - tgtPos[0]) * interiorTransitionAmount,
+            tgtPos[1] + (route.features[0].geometry.waypoint[1] - tgtPos[1]) * interiorTransitionAmount
+          ];
       }
     }
 
