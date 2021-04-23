@@ -199,6 +199,8 @@ nav textarea {
 #bottomBar {
   display: grid;
   grid-template-columns: 75% 25%;
+  margin-top: -6px;
+  height: 24vh;
 }
 
 #layover {
@@ -213,7 +215,47 @@ nav textarea {
 }
 
 #messaging {
+  height: 100%;
   background-color: #612910;
+}
+
+#messenger {
+  background-color: lightgray;
+  height: 20%;
+}
+
+#messagerContainer {
+  padding-top: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#messageButton {
+  width: 10%;
+  border-radius: 0em 1em 1em 0em;
+  border: 0px;
+}
+
+#messageButton:focus {
+  box-shadow: 0 0 3px 0px black;
+  outline: none;
+}
+
+#messageInput {
+  width: 90%;
+  border-radius: 1em 0em 0em 1em;
+  border: 0px;
+  padding-left: 1em;
+}
+
+#messageInput:focus {
+  box-shadow: 0 0 3px 0px black;
+  outline: none;
+}
+
+#messages {
+  height: 80%;
+  margin-bottom: 0px;
 }
 
 #actorInfo {
