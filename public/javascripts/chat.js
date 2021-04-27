@@ -1,28 +1,32 @@
-var socket = io();
-console.log("hello?")
-// function setUsername() {
-//   socket.emit("setUsername", document.getElementById("name").value);
-// }
-// var user;
-// socket.on("userExists", function (data) {
-//   document.getElementById("error-container").innerHTML = data;
-// });
-// socket.on("userSet", function (data) {
-//   user = data.username;
-//   document.body.innerHTML =
-//     '<input type = "text" id = "message">\
-//          <button type = "button" name = "button" onclick = "sendMessage()">Send</button>\
-//          <div id = "message-container"></div>';
-// });
-// function sendMessage() {
-//   var msg = document.getElementById("message").value;
-//   if (msg) {
-//     socket.emit("msg", { message: msg, user: user });
-//   }
-// }
-// socket.on("newmsg", function (data) {
-//   if (user) {
-//     document.getElementById("message-container").innerHTML +=
-//       "<div><b>" + data.user + "</b>: " + data.message + "</div>";
-//   }
-// });
+const URL = "http://localhost:3000";
+const socket = io();
+
+var messages = document.getElementById('messages');
+var form = document.getElementById('messenger');
+var input = document.getElementById('messageInput');
+
+form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (input.value) {
+        socket.emit('chat message', input.value);
+        input.value = '';
+    }
+});
+
+socket.on('chat message', function (msg) {
+    var item = document.createElement('li');
+    item.textContent = msg;
+    messages.appendChild(item);
+    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+});
+
+socket.onAny((event, ...args) => {
+    console.log(event, args);
+});
+
+
+function onUsernameSelection(username) {
+    this.usernameAlreadySelected = true;
+    socket.auth = { username };
+    socket.connect();
+}

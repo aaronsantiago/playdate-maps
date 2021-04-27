@@ -200,14 +200,13 @@ nav textarea {
   display: grid;
   grid-template-columns: 75% 25%;
   margin-top: -6px;
-  height: 24vh;
+  height: 23.1vh;
 }
 
 #layover {
   background-color: #3386c0;
   width: 65vw;
   max-width: 800px;
-  height: 90vh;
   z-index: 101;
   position: absolute;
   top: 5vh;
@@ -215,25 +214,48 @@ nav textarea {
 }
 
 #messaging {
-  height: 100%;
-  background-color: #612910;
+  height: 8em;
+  background-color: white;
+  position: relative;
+}
+
+#messages>li {
+  background-color: lightgray;
+  display: table;
+  border-radius: 1em;
+  padding: 0.5em 1em 0.5em 1em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+#messages::-webkit-scrollbar-thumb {
+  background-color: #d6dee1;
+  border-radius: 20px;
+  border: 6px solid transparent;
+  background-clip: content-box;
 }
 
 #messenger {
   background-color: lightgray;
-  height: 20%;
 }
 
 #messagerContainer {
-  padding-top: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-top: 1em;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 1em;
+  position: absolute;
+  width: 100%;
+  background-color: lightgray;
+  bottom: 0;
+  transform: translate(0, 100%);
 }
 
 #messageButton {
   width: 10%;
   border-radius: 0em 1em 1em 0em;
   border: 0px;
+  padding: 0.5em 1em 0.5em 1em;
 }
 
 #messageButton:focus {
@@ -242,10 +264,10 @@ nav textarea {
 }
 
 #messageInput {
+  padding: 0.5em 1em 0.5em 1em;
   width: 90%;
   border-radius: 1em 0em 0em 1em;
   border: 0px;
-  padding-left: 1em;
 }
 
 #messageInput:focus {
@@ -254,8 +276,8 @@ nav textarea {
 }
 
 #messages {
-  height: 80%;
-  margin-bottom: 0px;
+  overflow-y: scroll;
+  height: 8em;
 }
 
 #actorInfo {
