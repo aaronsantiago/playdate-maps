@@ -5,6 +5,7 @@ var messages = document.getElementById('messages');
 var form = document.getElementById('messenger');
 var input = document.getElementById('messageInput');
 
+
 form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (input.value) {
@@ -13,11 +14,17 @@ form.addEventListener('submit', function (e) {
     }
 });
 
+
+// function scrollIt() {
+//     const scrollElement = 
+//     document.getElementById('messagesContainer').SimpleBar.getScrollElement();
+//     scrollElement.scrollTop = 1200;
+// }
 socket.on('chat message', function (msg) {
     var item = document.createElement('li');
     item.textContent = msg;
     messages.appendChild(item);
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+    $('.simplebar-content-wrapper').scrollTop($('#messages').height());
 });
 
 socket.onAny((event, ...args) => {

@@ -275,13 +275,15 @@ nav textarea {
   outline: none;
 }
 
-#messages {
-  overflow-y: scroll;
+#messages {}
+
+#messagesContainer {
   height: 8em;
 }
 
 #actorInfo {
-  background-color: #FFF;
+  padding: 1em;
+  background-color: lightgray;
 }
 
 #video {
