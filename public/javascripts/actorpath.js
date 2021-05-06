@@ -28,8 +28,8 @@ class ActorPath {
     this.loaded = false;
     this.currentRoute = 0;
     this.metadata = [];
-    this.offsetX = (Math.random() - .5)/1000000;
-    this.offsetY = (Math.random() - .5)/1000000;
+    this.offsetX = (Math.random() - .5) / 1000000;
+    this.offsetY = (Math.random() - .5) / 1000000;
     let onLoad = () => {
 
       // create a DOM element for the marker
@@ -60,6 +60,8 @@ class ActorPath {
         if (markerWasClicked) {
           this.marker.togglePopup();
           actorFocus = this.name;
+          console.log("huh")
+          openActorOverlay(this);
         }
       });
 
@@ -244,7 +246,7 @@ class ActorPath {
     let tgtPos = [
       this.point.features[0].geometry.coordinates[0],
       this.point.features[0].geometry.coordinates[1]
-      ];
+    ];
 
     //If visible and indoors, use the position of the landmark instead of the map position
     if (appeared) {
@@ -254,16 +256,16 @@ class ActorPath {
         // check if we are transitioning TO being indoors
         let interiorTransitionAmount =
           Math.max(0, Math.min(1,
-            (currentTime - route.time)/interiorTransitionDuration));
+            (currentTime - route.time) / interiorTransitionDuration));
         // check if we are transitioning FROM being indoors
-        interiorTransitionAmount = 
+        interiorTransitionAmount =
           Math.min(interiorTransitionAmount,
-            ((route.time + route.stayDuration) - currentTime)/interiorTransitionDuration);
-        
+            ((route.time + route.stayDuration) - currentTime) / interiorTransitionDuration);
+
         tgtPos = [
-            tgtPos[0] + (route.features[0].geometry.waypoint[0] - tgtPos[0]) * interiorTransitionAmount,
-            tgtPos[1] + (route.features[0].geometry.waypoint[1] - tgtPos[1]) * interiorTransitionAmount
-          ];
+          tgtPos[0] + (route.features[0].geometry.waypoint[0] - tgtPos[0]) * interiorTransitionAmount,
+          tgtPos[1] + (route.features[0].geometry.waypoint[1] - tgtPos[1]) * interiorTransitionAmount
+        ];
       }
     }
     tgtPos[0] += this.offsetX;
@@ -294,15 +296,15 @@ class ActorPath {
           let p1Angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
           let p2Angle = Math.atan2(p1.y - p2.y, p1.x - p2.x);
 
-          p1Angle -= p1Angle % Math.PI/32;
-          p2Angle -= p2Angle % Math.PI/32;
+          p1Angle -= p1Angle % Math.PI / 32;
+          p2Angle -= p2Angle % Math.PI / 32;
           let newP1 = {
-            x: p1.x - Math.cos(p1Angle) * overlapDistance/2,
-            y: p1.y - Math.sin(p1Angle) * overlapDistance/2
+            x: p1.x - Math.cos(p1Angle) * overlapDistance / 2,
+            y: p1.y - Math.sin(p1Angle) * overlapDistance / 2
           };
           let newP2 = {
-            x: p2.x - Math.cos(p2Angle) * overlapDistance/2,
-            y: p2.y - Math.sin(p2Angle) * overlapDistance/2
+            x: p2.x - Math.cos(p2Angle) * overlapDistance / 2,
+            y: p2.y - Math.sin(p2Angle) * overlapDistance / 2
           };
           marker.setLngLat(map.unproject(newP1));
           marker2.setLngLat(map.unproject(newP2));
