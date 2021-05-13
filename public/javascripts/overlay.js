@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 
 function toggleOpen() {
-    if (document.getElementById('layover').style.transform === "translate(0%, 0%)") {
+    if (document.getElementById('layover').style.transform === "translate(0%, -50%)") {
         closeOverlay();
     } else {
         openOverlay();
@@ -14,12 +14,12 @@ function toggleOpen() {
 }
 
 function openOverlay() {
-    document.getElementById('layover').style.transform = "translate(0%, 0%)";
+    document.getElementById('layover').style.transform = "translate(0%, -50%)";
     document.getElementById('tabArrow').style.transform = "rotate(180deg)";
 }
 
 function closeOverlay() {
-    document.getElementById('layover').style.transform = "translate(-100%, 0%)";
+    document.getElementById('layover').style.transform = "translate(-100%, -50%)";
     document.getElementById('tabArrow').style.transform = "rotate(0deg)";
 }
 
