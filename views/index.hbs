@@ -3,38 +3,46 @@
 </main>
 <!-- chat and video layover -->
 <div id="layover">
-  <div id="video">
-    <div className="videoContainer">
-      <div className="video-responsive">
-        {{!-- <iframe id="videoPlayer" width="100%" height="500" src="https://www.youtube.com/embed/fdtqqyeKRJk"
-          frameBorder="0" allowFullScreen></iframe> --}}
-        <div id="player"></div>
-      </div>
-    </div>
-  </div>
-  <div id="bottomBar">
-    <div id="messaging">
-      <div id="messagesContainer" data-simplebar>
-        <ul id="messages"></ul>
-      </div>
-
-      <form id="messenger" action="">
-        <div id="messagerContainer">
-          <input id="messageInput" autocomplete="off" /><button id="messageButton">Send</button>
+  <div class="flexContainer">
+    <div class="col">
+      <div id="video">
+        <div className="videoContainer">
+          <div className="video-responsive">
+            {{! <iframe id="videoPlayer" width="100%" height="500" src="https://www.youtube.com/embed/fdtqqyeKRJk"
+          frameBorder="0" allowFullScreen></iframe> }}
+            <div id="player"></div>
+          </div>
         </div>
-      </form>
+        <div id="actorInfo">
+          <img src="" id="actorImg">
+          <p id="actorName"></p>
+          <p>Distance Traveled: <span id="distance"></span></p>
+          <p>Time Left: <span id="timeLeft"></span></p>
+          <p>Next Experience: <span id="nextExp"></span></p>
+        </div>
+      </div>
     </div>
-    <div id="actorInfo">
-      <p>Distance Traveled: <span id="distance"></span></p>
-      <p>Time Left: <span id="timeLeft"></span></p>
-      <p>Next Experience: <span id="nextExp"></span></p>
+
+    <div class="col">
+      <div id="messaging">
+        <div id="messagesContainer" data-simplebar>
+          <ul id="messages"></ul>
+        </div>
+        <form id="messenger" action="">
+          <div id="messagerContainer">
+            <input id="messageInput" autocomplete="off" /><button
+              id="messageButton"
+            ><i style='font-size:24px' class='fas'>&#xf0da;</i></button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
+
   <div id="openTab" onclick="toggleOpen()">
-    <p id='tabArrow'>&#8250</p>
+    <p id="tabArrow">&#8250</p>
   </div>
 </div>
-
 
 <!-- question mark button -->
 <i id="question" onclick="monolog.show();" class="far fa-question-circle"></i>
@@ -42,17 +50,51 @@
 <div id="timeline">
   <div id="container"></div>
   <div id="timelineButtons">
-    <button id="resetButton" data-toggle="tooltip" title="Restart (Backspace" onclick="resetButton();"><i
-        class="fas fa-step-backward"></i></button> <button id="pauseButton" data-toggle="tooltip"
-      title="Play/Pause (Spacebar)" onclick="pause();" class="enabled"><i class="fas fa-pause"></i></button> <button
-      id="speed1" data-toggle="tooltip" title="Normal Speed (1)" onclick="speed1Button();"><i
-        class="fas fa-play"></i></button> <button id="speed2" data-toggle="tooltip" title="Fast (2)"
-      onclick="speed2Button();"><i class="fas fa-play"></i><i class="fas fa-play"></i></button> <button id="speed3"
-      data-toggle="tooltip" title="Faster (3)" onclick="speed3Button();"><i class="fas fa-play"></i><i
-        class="fas fa-play"></i><i class="fas fa-play"></i></button> <button id="speed4" data-toggle="tooltip"
-      title="Fastest (4)" onclick="speed4Button();"><i class="fas fa-play"></i><i class="fas fa-play"></i><i
-        class="fas fa-play"></i><i class="fas fa-play"></i></button> <button id="fullscreen"
-      onclick="toggleFullscreen()"><i class="fas fa-expand"></i></button> <span id="currentTimeText"></span>
+    <button
+      id="resetButton"
+      data-toggle="tooltip"
+      title="Restart (Backspace"
+      onclick="resetButton();"
+    ><i class="fas fa-step-backward"></i></button>
+    <button
+      id="pauseButton"
+      data-toggle="tooltip"
+      title="Play/Pause (Spacebar)"
+      onclick="pause();"
+      class="enabled"
+    ><i class="fas fa-pause"></i></button>
+    <button
+      id="speed1"
+      data-toggle="tooltip"
+      title="Normal Speed (1)"
+      onclick="speed1Button();"
+    ><i class="fas fa-play"></i></button>
+    <button
+      id="speed2"
+      data-toggle="tooltip"
+      title="Fast (2)"
+      onclick="speed2Button();"
+    ><i class="fas fa-play"></i><i class="fas fa-play"></i></button>
+    <button
+      id="speed3"
+      data-toggle="tooltip"
+      title="Faster (3)"
+      onclick="speed3Button();"
+    ><i class="fas fa-play"></i><i class="fas fa-play"></i><i
+        class="fas fa-play"
+      ></i></button>
+    <button
+      id="speed4"
+      data-toggle="tooltip"
+      title="Fastest (4)"
+      onclick="speed4Button();"
+    ><i class="fas fa-play"></i><i class="fas fa-play"></i><i
+        class="fas fa-play"
+      ></i><i class="fas fa-play"></i></button>
+    <button id="fullscreen" onclick="toggleFullscreen()"><i
+        class="fas fa-expand"
+      ></i></button>
+    <span id="currentTimeText"></span>
   </div>
   <div id="slider" class="slider" data-popup-enabled="true"></div>
 </div>

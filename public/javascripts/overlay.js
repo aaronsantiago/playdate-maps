@@ -21,11 +21,15 @@ function openOverlay() {
 }
 
 function closeOverlay() {
+    overlayOpen = false;
     document.getElementById('layover').style.transform = "translate(-100%, -50%)";
     document.getElementById('tabArrow').style.transform = "rotate(0deg)";
 }
 
 function loadActorInfo(actor) {
+    console.log(actor);
+    document.getElementById('actorName').innerText = actor.name;
+    document.getElementById('actorImg').src = "/images/" + actor.name + ".png";
     document.getElementById('distance').innerText = 'hi'//actor;
     document.getElementById('timeLeft').innerText = 'hi'//actor;
     document.getElementById('nextExp').innerText = 'hi'//actor;
