@@ -59,6 +59,9 @@ button.enabled {
   border-radius: 3px;
   left: 4vw;
   padding-top: 1em;
+  transition: opacity .25s ease-in-out;
+   -moz-transition: opacity .25s ease-in-out;
+   -webkit-transition: opacity .25s ease-in-out;
 }
 
 #playbackSpeed {
@@ -83,15 +86,11 @@ button.enabled {
 }
 
 .visible {
-  visibility: visible;
   opacity: 1;
-  transition: opacity .15s linear;
 }
 
 .hidden {
-  visibility: hidden;
   opacity: 0;
-  transition: visibility 0s .15s, opacity .15s linear;
 }
 
 .fastforwardIcon {

@@ -341,9 +341,9 @@ function animateAll() {
   if (!isMouseInControls)
     hideBarTimer += deltaTime;
   if (hideBarTimer < hideBarWaitSeconds) {
-    $("#timeline").removeClass("hidden").addClass("visible");
+    $("#timeline").css('opacity', '1');
   } else {
-    $("#timeline").removeClass("visible").addClass("hidden");
+    $("#timeline").css('opacity', '0');
   }
   if (playing) {
     currentPlayPosition += deltaTime / 60 * playbackSpeed;
