@@ -108,17 +108,31 @@ function toggleFullscreen() {
   }
 }
 
-function pause() {
-  removeSpeedButtonEnabledClass();
-  playing = false;
-  $('#pauseButton').addClass('enabled');
-}
 let currentSpeed = "#speed1";
 function play() {
   removeSpeedButtonEnabledClass();
   playing = true;
+  $('#playPauseButton').html('<i class="fas fa-pause"></i>')
+  
   $(currentSpeed).addClass('enabled');
 }
+
+function pause() {
+  removeSpeedButtonEnabledClass();
+  playing = false;
+  $('#playPauseButton').html('<i class="fas fa-play"></i>')
+  // $('#playPauseButton').addClass('enabled');
+}
+
+function togglePlayPause(){
+  if(playing){
+    pause();
+  } else {
+    play();
+  }
+}
+
+
 
 function removeSpeedButtonEnabledClass() {
   $('#pauseButton').removeClass('enabled');
